@@ -68,8 +68,6 @@
   table.ci-table input[type=number]:focus { border-color:var(--accent); background:var(--surface); }
 
   .ci-badge { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; padding:3px 9px; border-radius:20px; }
-  .ci-badge.entrada { background:var(--entrada-soft); color:var(--entrada); }
-  .ci-badge.salida { background:var(--salida-soft); color:var(--salida); }
   .ci-badge.pendiente { background:var(--amber-soft); color:var(--amber); }
   .ci-badge.recibido { background:var(--entrada-soft); color:var(--entrada); }
   .ci-badge.cancelado { background:var(--bg); color:var(--faint); }
@@ -77,11 +75,6 @@
   .ci-badge.inactivo { background:var(--bg); color:var(--faint); }
 
   .ci-empty { color:var(--faint); font-size:13px; padding:6px 0; }
-
-  .ci-segmented { display:flex; border:1px solid var(--line); border-radius:7px; overflow:hidden; width:180px; }
-  .ci-segmented button { flex:1; padding:8px 14px; font-size:13px; font-family:'Inter',sans-serif; border:none; background:var(--bg); color:var(--muted); cursor:pointer; }
-  .ci-segmented button.on.entrada { background:var(--entrada-soft); color:var(--entrada); font-weight:600; }
-  .ci-segmented button.on.salida { background:var(--salida-soft); color:var(--salida); font-weight:600; }
 
   .ci-hint { font-size:12px; color:var(--faint); margin-top:8px; }
 
@@ -112,6 +105,12 @@
   .ci-daytotal-item strong { display:block; font-family:'IBM Plex Mono',monospace; font-size:18px; font-weight:600; margin-top:2px; }
 
   .ci-dia-actions { display:flex; gap:10px; margin-top:16px; }
+
+  .ci-cat-header { display:flex; align-items:center; gap:8px; padding:10px 2px; font-weight:600; font-size:13px; cursor:pointer; color:var(--ink); border-bottom:1px solid var(--line); margin-top:14px; user-select:none; }
+  .ci-cat-header:first-child { margin-top:0; }
+  .ci-cat-header:hover { color: var(--accent); }
+  .ci-cat-arrow { width:12px; display:inline-block; text-align:center; color:var(--muted); font-size:10px; }
+  .ci-cat-count { color:var(--faint); font-weight:400; font-size:12px; }
 
   /* login gate */
   #ci-gate { position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; z-index:100; }
@@ -215,6 +214,29 @@ function notify(text) {
   toastTimer = setTimeout(() => t.classList.remove("show"), 2600);
 }
 
+/* ---------- agrupación por categoría (con plegado) ---------- */
+function agruparPorCategoria(productos) {
+  const grupos = {};
+  productos.forEach(p => {
+    const cat = (p.categoria && p.categoria.trim()) || "Sin categoría";
+    if (!grupos[cat]) grupos[cat] = [];
+    grupos[cat].push(p);
+  });
+  const nombres = Object.keys(grupos).sort((a, b) => {
+    if (a === "Sin categoría") return 1;
+    if (b === "Sin categoría") return -1;
+    return a.localeCompare(b, "es");
+  });
+  return nombres.map(nombre => ({ nombre, productos: grupos[nombre] }));
+}
+function isCatExpanded(cat) { return state.catExpanded[cat] !== false; }
+function catHeaderHTML(cat, count) {
+  const abierto = isCatExpanded(cat);
+  return `<div class="ci-cat-header btn-toggle-cat" data-cat="${esc(cat)}">
+    <span class="ci-cat-arrow">${abierto ? "▾" : "▸"}</span> ${esc(cat)} <span class="ci-cat-count">(${count})</span>
+  </div>`;
+}
+
 /* ---------- estado global ---------- */
 const state = {
   productos: [],
@@ -224,6 +246,7 @@ const state = {
   tab: "dashboard",
   cal: { year: new Date().getFullYear(), month: new Date().getMonth(), selected: isoLocal(new Date()) },
   invRows: {},
+  catExpanded: {},
 };
 
 function getProducto(id) { return state.productos.find(p => p.id === id); }
@@ -344,7 +367,7 @@ function headerHTML(title) {
 /* ---------- vista: dashboard ---------- */
 function viewDashboard() {
   const hoyISO = isoLocal(new Date());
-  const mesPrefix = hoyISO.slice(0, 7); // YYYY-MM
+  const mesPrefix = hoyISO.slice(0, 7);
   const ventaHoy = state.conteos.filter(c => c.fecha === hoyISO).reduce((acc, c) => acc + c.dinero, 0);
   const ventaMes = state.conteos.filter(c => c.fecha.slice(0, 7) === mesPrefix).reduce((acc, c) => acc + c.dinero, 0);
 
@@ -363,32 +386,41 @@ function viewProductos() {
   html += `<div class="ci-section"><div class="ci-section-head">Agregar producto</div><div class="ci-section-body">
     <form id="form-producto" class="ci-form-row">
       <div class="ci-field"><label>Nombre</label><input name="nombre" placeholder="Cerveza Costeña" required /></div>
-      <div class="ci-field"><label>Categoría (opcional)</label><input name="categoria" placeholder="Cerveza" /></div>
+      <div class="ci-field"><label>Categoría (opcional)</label><input name="categoria" placeholder="Cerveza" list="lista-categorias" /></div>
       <div class="ci-field"><label>Unidad</label><select name="unidad" style="min-width:100px">${UNIDADES.map(u => `<option value="${u}">${u}</option>`).join("")}</select></div>
       <div class="ci-field"><label>Cantidad existente (opcional)</label><input type="number" min="0" step="0.01" name="cantidadExistente" style="min-width:90px" placeholder="0" /></div>
       <div class="ci-field"><label>Precio de venta (opcional)</label><input type="number" min="0" step="0.01" name="precio" style="min-width:100px" placeholder="0" /></div>
       <button class="ci-btn" type="submit">+ Agregar</button>
     </form>
+    <datalist id="lista-categorias">
+      ${[...new Set(state.productos.map(p => (p.categoria || "").trim()).filter(Boolean))].map(c => `<option value="${esc(c)}">`).join("")}
+    </datalist>
   </div></div>`;
 
   html += `<div class="ci-section"><div class="ci-section-head">Catálogo (${state.productos.length})</div><div class="ci-section-body">`;
   if (state.productos.length === 0) {
     html += `<div class="ci-empty">Aún no hay productos. Agrega el primero arriba, por ejemplo cerveza, gatorade o agua.</div>`;
   } else {
-    html += `<table class="ci-table"><thead><tr><th>Nombre</th><th>Categoría</th><th>Cantidad existente</th><th>Precio</th><th></th></tr></thead><tbody>
-    ${state.productos.map(p => `<tr>
-        <td>${esc(p.nombre)}</td><td>${esc(p.categoria) || "—"}</td>
-        <td>
-          <div style="display:flex;align-items:center;gap:6px">
-            <input type="number" step="0.01" class="cantidad-input" data-id="${p.id}" value="${p.cantidadExistente || 0}" style="width:80px" />
-            <span style="font-size:11.5px;color:var(--faint)">${esc(p.unidad)}</span>
-            <button class="ci-btn secondary tiny btn-guardar-cantidad" data-id="${p.id}">Guardar</button>
-          </div>
-        </td>
-        <td class="ci-mono">${fmtMoney(p.precio)}</td>
-        <td><button class="ci-btn peligro secondary tiny btn-borrar-producto" data-id="${p.id}">Eliminar</button></td>
-      </tr>`).join("")}
-    </tbody></table>`;
+    html += agruparPorCategoria(state.productos).map(grupo => {
+      let seccion = catHeaderHTML(grupo.nombre, grupo.productos.length);
+      if (isCatExpanded(grupo.nombre)) {
+        seccion += `<table class="ci-table"><thead><tr><th>Nombre</th><th>Cantidad existente</th><th>Precio</th><th></th></tr></thead><tbody>
+          ${grupo.productos.map(p => `<tr>
+            <td>${esc(p.nombre)}</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:6px">
+                <input type="number" step="0.01" class="cantidad-input" data-id="${p.id}" value="${p.cantidadExistente || 0}" style="width:80px" />
+                <span style="font-size:11.5px;color:var(--faint)">${esc(p.unidad)}</span>
+                <button class="ci-btn secondary tiny btn-guardar-cantidad" data-id="${p.id}">Guardar</button>
+              </div>
+            </td>
+            <td class="ci-mono">${fmtMoney(p.precio)}</td>
+            <td><button class="ci-btn peligro secondary tiny btn-borrar-producto" data-id="${p.id}">Eliminar</button></td>
+          </tr>`).join("")}
+        </tbody></table>`;
+      }
+      return seccion;
+    }).join("");
   }
   html += `</div></div>`;
   return html;
@@ -476,22 +508,36 @@ function viewInventario() {
     bodyHTML += `<div class="ci-empty">Agrega productos para poder registrar el inventario del día.</div>`;
   } else {
     let totalVendido = 0, totalDinero = 0;
-    let rowsHTML = filas.map((f, idx) => {
-      const p = getProducto(f.productoId);
+    // pre-calcular totales sobre TODAS las filas (independiente de qué categorías estén plegadas)
+    filas.forEach(f => {
       const vendido = (Number(f.entrada) || 0) - (Number(f.salida) || 0);
-      const dinero = vendido * (Number(f.precio) || 0);
-      totalVendido += vendido; totalDinero += dinero;
-      return `<tr>
-        <td>${p ? esc(p.nombre) : "—"}</td>
-        <td><input type="number" class="inv-input" data-idx="${idx}" data-campo="entrada" value="${f.entrada}" /> <span class="ci-hint" style="margin-top:0">${p ? esc(p.unidad) : ""}</span></td>
-        <td><input type="number" class="inv-input" data-idx="${idx}" data-campo="salida" value="${f.salida}" /></td>
-        <td class="ci-mono" style="color:${vendido < 0 ? "var(--salida)" : "var(--ink)"}">${vendido} ${p ? esc(p.unidad) : ""}</td>
-        <td><input type="number" step="0.01" class="inv-input" data-idx="${idx}" data-campo="precio" value="${f.precio}" /></td>
-        <td class="ci-mono">${fmtMoney(dinero)}</td>
-      </tr>`;
+      totalVendido += vendido;
+      totalDinero += vendido * (Number(f.precio) || 0);
+    });
+
+    const gruposHTML = agruparPorCategoria(productos).map(grupo => {
+      let seccion = catHeaderHTML(grupo.nombre, grupo.productos.length);
+      if (isCatExpanded(grupo.nombre)) {
+        seccion += `<table class="ci-table"><thead><tr><th>Producto</th><th>Entrada (ayer)</th><th>Salida (hoy)</th><th>Vendido</th><th>Precio</th><th>Dinero</th></tr></thead><tbody>
+          ${grupo.productos.map(p => {
+            const f = filas.find(x => x.productoId === p.id);
+            const vendido = (Number(f.entrada) || 0) - (Number(f.salida) || 0);
+            const dinero = vendido * (Number(f.precio) || 0);
+            return `<tr>
+              <td>${esc(p.nombre)}</td>
+              <td><input type="number" class="inv-input" data-pid="${p.id}" data-campo="entrada" value="${f.entrada}" /> <span class="ci-hint" style="margin-top:0">${esc(p.unidad)}</span></td>
+              <td><input type="number" class="inv-input" data-pid="${p.id}" data-campo="salida" value="${f.salida}" /></td>
+              <td class="ci-mono" style="color:${vendido < 0 ? "var(--salida)" : "var(--ink)"}">${vendido} ${esc(p.unidad)}</td>
+              <td><input type="number" step="0.01" class="inv-input" data-pid="${p.id}" data-campo="precio" value="${f.precio}" /></td>
+              <td class="ci-mono">${fmtMoney(dinero)}</td>
+            </tr>`;
+          }).join("")}
+        </tbody></table>`;
+      }
+      return seccion;
     }).join("");
 
-    bodyHTML += `<table class="ci-table"><thead><tr><th>Producto</th><th>Entrada (ayer)</th><th>Salida (hoy)</th><th>Vendido</th><th>Precio</th><th>Dinero</th></tr></thead><tbody>${rowsHTML}</tbody></table>
+    bodyHTML += gruposHTML + `
     <div class="ci-daytotal">
       <div class="ci-daytotal-item"><div>Total vendido</div><strong>${totalVendido}</strong></div>
       <div class="ci-daytotal-item"><div>Total del día</div><strong>${fmtMoney(totalDinero)}</strong></div>
@@ -500,7 +546,7 @@ function viewInventario() {
       <button class="ci-btn" id="btn-guardar-dia">✓ ${yaGuardado ? "Actualizar" : "Guardar"} inventario del día</button>
       ${yaGuardado ? `<button class="ci-btn peligro secondary" id="btn-borrar-dia">🗑 Eliminar datos de este día</button>` : ""}
     </div>
-    <div class="ci-hint">La entrada se completa sola con lo que quedó registrado el día anterior. Si el día ya tiene datos guardados, puedes corregirlos aquí mismo y darle "Actualizar".</div>`;
+    <div class="ci-hint">La entrada se completa sola con lo que quedó registrado el día anterior. Si el día ya tiene datos guardados, puedes corregirlos aquí mismo y darle "Actualizar". Haz clic en el nombre de una categoría para plegarla o desplegarla.</div>`;
   }
   bodyHTML += `</div></div>`;
 
@@ -515,7 +561,10 @@ function viewPedidos() {
   html += `<div class="ci-section"><div class="ci-section-head">Registrar pedido</div><div class="ci-section-body">
     <form id="form-pedido" class="ci-form-row">
       <div class="ci-field"><label>Producto</label><select name="productoId" required>
-        <option value="">Selecciona…</option>${productos.map(p => `<option value="${p.id}">${esc(p.nombre)}</option>`).join("")}
+        <option value="">Selecciona…</option>
+        ${agruparPorCategoria(productos).map(grupo => `<optgroup label="${esc(grupo.nombre)}">
+          ${grupo.productos.map(p => `<option value="${p.id}">${esc(p.nombre)}</option>`).join("")}
+        </optgroup>`).join("")}
       </select></div>
       <div class="ci-field"><label>Distribuidora</label><select name="distribuidoraId" required>
         <option value="">Selecciona…</option>${distribuidorasActivas.map(d => `<option value="${d.id}">${esc(d.nombre)}</option>`).join("")}
@@ -561,6 +610,12 @@ function attachHandlers() {
     b.onclick = () => { state.tab = b.dataset.tab; render(); };
   });
 
+  document.querySelectorAll(".btn-toggle-cat").forEach(b => b.onclick = () => {
+    const cat = b.dataset.cat;
+    state.catExpanded[cat] = !isCatExpanded(cat);
+    render();
+  });
+
   const fp = document.getElementById("form-producto");
   if (fp) fp.onsubmit = async (e) => {
     e.preventDefault();
@@ -597,7 +652,8 @@ function attachHandlers() {
   };
   document.querySelectorAll(".inv-input").forEach(inp => inp.onchange = () => {
     const filas = state.invRows[state.cal.selected];
-    filas[Number(inp.dataset.idx)][inp.dataset.campo] = inp.value;
+    const fila = filas.find(x => x.productoId === inp.dataset.pid);
+    if (fila) fila[inp.dataset.campo] = inp.value;
     render();
   });
   const btnGuardarDia = document.getElementById("btn-guardar-dia");
