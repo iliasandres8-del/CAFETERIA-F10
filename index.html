@@ -179,12 +179,12 @@ import {
 
 /* ======================= CONFIGURA AQUÍ TU FIREBASE ======================= */
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_PROYECTO.firebaseapp.com",
-  projectId: "TU_PROYECTO",
-  storageBucket: "TU_PROYECTO.appspot.com",
-  messagingSenderId: "TU_SENDER_ID",
-  appId: "TU_APP_ID",
+  apiKey: "AIzaSyBgb48NqfkCYrrmXtX3wr114tQV064UT30",
+  authDomain: "cafeteria-f10.firebaseapp.com",
+  projectId: "cafeteria-f10",
+  storageBucket: "cafeteria-f10.firebasestorage.app",
+  messagingSenderId: "1012297436617",
+  appId: "1:1012297436617:web:ef2509c88215e62759ec18",
 };
 const CONTRASENA_ACCESO = "12345f10";
 /* =========================================================================== */
@@ -744,7 +744,8 @@ function mostrarGate() {
       document.getElementById("ci-gate").style.display = "none";
       iniciarApp();
     } catch (e) {
-      err.textContent = "No se pudo conectar. Revisa tu conexión.";
+      console.error(e);
+      err.textContent = "Error: " + (e.code || e.message || "desconocido");
       btn.disabled = false;
       btn.textContent = "Entrar";
     }
