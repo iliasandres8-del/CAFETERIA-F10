@@ -248,6 +248,11 @@ async function borrarProducto(id) {
   await deleteDoc(doc(db, "productos", id));
   notify("Producto eliminado.");
 }
+async function editarCantidadProducto(id, nuevaCantidad) {
+  const val = parseFloat(nuevaCantidad);
+  await updateDoc(doc(db, "productos", id), { cantidadExistente: isNaN(val) ? 0 : val });
+  notify("Cantidad actualizada.");
+}
 async function crearDistribuidora({ nombre, contacto }) {
   if (!nombre.trim()) return;
   await addDoc(collection(db, "distribuidoras"), { nombre: nombre.trim(), contacto: contacto.trim(), activo: true, creado: nowISO() });
@@ -373,7 +378,13 @@ function viewProductos() {
     html += `<table class="ci-table"><thead><tr><th>Nombre</th><th>Categoría</th><th>Cantidad existente</th><th>Precio</th><th></th></tr></thead><tbody>
     ${state.productos.map(p => `<tr>
         <td>${esc(p.nombre)}</td><td>${esc(p.categoria) || "—"}</td>
-        <td class="ci-mono">${p.cantidadExistente || 0} ${esc(p.unidad)}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input type="number" step="0.01" class="cantidad-input" data-id="${p.id}" value="${p.cantidadExistente || 0}" style="width:80px" />
+            <span style="font-size:11.5px;color:var(--faint)">${esc(p.unidad)}</span>
+            <button class="ci-btn secondary tiny btn-guardar-cantidad" data-id="${p.id}">Guardar</button>
+          </div>
+        </td>
         <td class="ci-mono">${fmtMoney(p.precio)}</td>
         <td><button class="ci-btn peligro secondary tiny btn-borrar-producto" data-id="${p.id}">Eliminar</button></td>
       </tr>`).join("")}
@@ -558,6 +569,10 @@ function attachHandlers() {
     fp.reset();
   };
   document.querySelectorAll(".btn-borrar-producto").forEach(b => b.onclick = () => borrarProducto(b.dataset.id));
+  document.querySelectorAll(".btn-guardar-cantidad").forEach(b => b.onclick = () => {
+    const input = document.querySelector(`.cantidad-input[data-id="${b.dataset.id}"]`);
+    editarCantidadProducto(b.dataset.id, input.value);
+  });
 
   const fd2 = document.getElementById("form-distribuidora");
   if (fd2) fd2.onsubmit = async (e) => {
