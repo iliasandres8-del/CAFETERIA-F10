@@ -206,19 +206,20 @@ function fmtMoney(n) { return "$" + Math.round(n || 0).toLocaleString("es-CO"); 
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 
 const UNIDADES = ["unidades", "kg", "g", "l", "ml", "cajas", "bolsas"];
-const HORAS_CANCHA = [15, 16, 17, 18, 19, 20, 21, 22]; // 3pm a 10pm
+const PRECIO_CANCHA_BAJA = 60000;  // lunes a jueves, 3pm-5pm
+const PRECIO_CANCHA_ALTA = 80000;  // lunes a jueves, 6pm en adelante
+const PRECIO_CANCHA_FINDE = 100000; // viernes a domingo, o festivo, cualquier hora
 
 function esFinDeSemana(fecha) {
   const dia = new Date(fecha + "T00:00:00").getDay(); // 0=domingo,5=viernes,6=sábado
   return dia === 0 || dia === 5 || dia === 6;
 }
-function precioCanchaHora(fecha, hora, festivo) {
-  if (festivo || esFinDeSemana(fecha)) return 100000;
-  return hora <= 17 ? 60000 : 80000; // 3pm,4pm,5pm = 60000 · 6pm en adelante = 80000
-}
-function fmtHora12(hora) {
-  const h = hora % 12 === 0 ? 12 : hora % 12;
-  return h + (hora < 12 ? ":00 AM" : ":00 PM");
+function calcularCanchas(fecha, festivo, cantBaja, cantAlta) {
+  const b = Number(cantBaja) || 0, a = Number(cantAlta) || 0;
+  if (festivo || esFinDeSemana(fecha)) {
+    return { totalCanchas: a, totalDinero: a * PRECIO_CANCHA_FINDE };
+  }
+  return { totalCanchas: b + a, totalDinero: b * PRECIO_CANCHA_BAJA + a * PRECIO_CANCHA_ALTA };
 }
 
 let toastTimer = null;
@@ -341,9 +342,9 @@ async function guardarDia(fecha, filas) {
   }
   notify("Inventario del día guardado.");
 }
-async function guardarCanchasDia(fecha, slots, festivo) {
+async function guardarCanchasDia(fecha, cantBaja, cantAlta, festivo) {
   const existente = state.canchas.find(c => c.fecha === fecha);
-  const data = { fecha, slots, festivo: !!festivo, actualizado: nowISO() };
+  const data = { fecha, cantBaja: Number(cantBaja) || 0, cantAlta: Number(cantAlta) || 0, festivo: !!festivo, actualizado: nowISO() };
   if (existente) {
     await updateDoc(doc(db, "canchas", existente.id), data);
   } else {
@@ -403,7 +404,7 @@ function viewDashboard() {
   const dineroCanchasDia = (fecha) => {
     const c = state.canchas.find(x => x.fecha === fecha);
     if (!c) return 0;
-    return HORAS_CANCHA.reduce((acc, h) => acc + (Number(c.slots[h]) || 0) * precioCanchaHora(fecha, h, c.festivo), 0);
+    return calcularCanchas(fecha, c.festivo, c.cantBaja, c.cantAlta).totalDinero;
   };
   const ventaCanchasHoy = dineroCanchasDia(hoyISO);
   const ventaCanchasMes = state.canchas.filter(c => c.fecha.slice(0, 7) === mesPrefix).reduce((acc, c) => acc + dineroCanchasDia(c.fecha), 0);
@@ -519,10 +520,8 @@ function viewInventario() {
   if (!state.canchaRows[selectedDate]) {
     state.canchaRows[selectedDate] = {
       festivo: canchaDoc ? !!canchaDoc.festivo : false,
-      slots: HORAS_CANCHA.reduce((acc, h) => {
-        acc[h] = canchaDoc && canchaDoc.slots ? (canchaDoc.slots[h] || 0) : 0;
-        return acc;
-      }, {}),
+      cantBaja: canchaDoc ? (canchaDoc.cantBaja || 0) : 0,
+      cantAlta: canchaDoc ? (canchaDoc.cantAlta || 0) : 0,
     };
   }
   const canchaRow = state.canchaRows[selectedDate];
@@ -563,12 +562,7 @@ function viewInventario() {
     totalDineroProductos += vendido * (Number(f.precio) || 0);
   });
 
-  let totalCanchas = 0, totalDineroCanchas = 0;
-  HORAS_CANCHA.forEach(h => {
-    const cant = Number(canchaRow.slots[h]) || 0;
-    totalCanchas += cant;
-    totalDineroCanchas += cant * precioCanchaHora(selectedDate, h, canchaRow.festivo);
-  });
+  const { totalCanchas, totalDinero: totalDineroCanchas } = calcularCanchas(selectedDate, canchaRow.festivo, canchaRow.cantBaja, canchaRow.cantAlta);
   const totalGeneral = totalDineroProductos + totalDineroCanchas;
 
   let bodyHTML = `<div class="ci-section"><div class="ci-section-head" style="text-transform:capitalize">${fmtFechaLarga(selectedDate)}</div><div class="ci-section-body">`;
@@ -607,22 +601,28 @@ function viewInventario() {
 
   // ---- sección canchas ----
   const finde = esFinDeSemana(selectedDate);
+  const modoFinde = finde || canchaRow.festivo;
   bodyHTML += `<div class="ci-section"><div class="ci-section-head">⚽ Canchas vendidas</div><div class="ci-section-body">
     ${!finde ? `<label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:14px;cursor:pointer">
-      <input type="checkbox" id="chk-festivo" ${canchaRow.festivo ? "checked" : ""} /> Marcar este día como festivo (tarifa de fin de semana)
-    </label>` : `<div class="ci-hint" style="margin-top:0;margin-bottom:14px">Este día ya tiene tarifa de fin de semana ($100.000 fijo por hora).</div>`}
-    <table class="ci-table"><thead><tr><th>Hora</th><th>Precio</th><th>Canchas vendidas</th><th>Subtotal</th></tr></thead><tbody>
-    ${HORAS_CANCHA.map(h => {
-      const precio = precioCanchaHora(selectedDate, h, canchaRow.festivo);
-      const cant = Number(canchaRow.slots[h]) || 0;
-      return `<tr>
-        <td>${fmtHora12(h)}</td>
-        <td class="ci-mono">${fmtMoney(precio)}</td>
-        <td><input type="number" min="0" max="4" class="cancha-input" data-hora="${h}" value="${cant}" /></td>
-        <td class="ci-mono">${fmtMoney(cant * precio)}</td>
-      </tr>`;
-    }).join("")}
-    </tbody></table>
+      <input type="checkbox" id="chk-festivo" ${canchaRow.festivo ? "checked" : ""} /> Marcar este día como festivo (tarifa de fin de semana, $100.000)
+    </label>` : `<div class="ci-hint" style="margin-top:0;margin-bottom:14px">Fin de semana: tarifa fija de $100.000 por cancha.</div>`}
+    ${modoFinde ? `
+      <div class="ci-field">
+        <label>Canchas jugadas (a ${fmtMoney(PRECIO_CANCHA_FINDE)} cada una)</label>
+        <input type="number" min="0" class="cancha-input" data-campo="cantAlta" value="${canchaRow.cantAlta || 0}" style="width:100px" />
+      </div>
+    ` : `
+      <div class="ci-form-row">
+        <div class="ci-field">
+          <label>Canchas de 3pm a 5pm (a ${fmtMoney(PRECIO_CANCHA_BAJA)})</label>
+          <input type="number" min="0" class="cancha-input" data-campo="cantBaja" value="${canchaRow.cantBaja || 0}" style="width:100px" />
+        </div>
+        <div class="ci-field">
+          <label>Canchas de 6pm en adelante (a ${fmtMoney(PRECIO_CANCHA_ALTA)})</label>
+          <input type="number" min="0" class="cancha-input" data-campo="cantAlta" value="${canchaRow.cantAlta || 0}" style="width:100px" />
+        </div>
+      </div>
+    `}
     <div class="ci-daytotal">
       <div class="ci-daytotal-item"><div>Canchas vendidas</div><strong>${totalCanchas}</strong></div>
       <div class="ci-daytotal-item"><div>Total canchas</div><strong>${fmtMoney(totalDineroCanchas)}</strong></div>
@@ -750,7 +750,7 @@ function attachHandlers() {
   });
   document.querySelectorAll(".cancha-input").forEach(inp => inp.onchange = () => {
     const row = state.canchaRows[state.cal.selected];
-    if (row) row.slots[inp.dataset.hora] = inp.value;
+    if (row) row[inp.dataset.campo] = inp.value;
     render();
   });
   const chkFestivo = document.getElementById("chk-festivo");
@@ -763,7 +763,7 @@ function attachHandlers() {
   if (btnGuardarDia) btnGuardarDia.onclick = async () => {
     const fecha = state.cal.selected;
     await guardarDia(fecha, state.invRows[fecha]);
-    await guardarCanchasDia(fecha, state.canchaRows[fecha].slots, state.canchaRows[fecha].festivo);
+    await guardarCanchasDia(fecha, state.canchaRows[fecha].cantBaja, state.canchaRows[fecha].cantAlta, state.canchaRows[fecha].festivo);
   };
   const btnBorrarDia = document.getElementById("btn-borrar-dia");
   if (btnBorrarDia) btnBorrarDia.onclick = () => borrarDia(state.cal.selected);
@@ -789,7 +789,7 @@ function generarPDFDia(fecha) {
   const { jsPDF } = window.jspdf;
   const docPdf = new jsPDF();
   const filas = state.invRows[fecha] || [];
-  const canchaRow = state.canchaRows[fecha] || { festivo: false, slots: {} };
+  const canchaRow = state.canchaRows[fecha] || { festivo: false, cantBaja: 0, cantAlta: 0 };
 
   docPdf.setFontSize(16);
   docPdf.text("Cafetería F10 - Resumen del día", 14, 16);
@@ -822,23 +822,20 @@ function generarPDFDia(fecha) {
   docPdf.setFontSize(11);
   docPdf.text(`Total cafetería: ${fmtMoney(totalDineroProductos)}`, 14, y);
 
-  const filasCanchas = HORAS_CANCHA
-    .map(h => {
-      const cant = Number(canchaRow.slots[h]) || 0;
-      const precio = precioCanchaHora(fecha, h, canchaRow.festivo);
-      return { hora: fmtHora12(h), cant, subtotal: cant * precio };
-    })
-    .filter(r => r.cant > 0);
-
-  let totalDineroCanchas = 0;
-  filasCanchas.forEach(r => totalDineroCanchas += r.subtotal);
+  const finde = esFinDeSemana(fecha) || canchaRow.festivo;
+  const filasCanchas = [];
+  if (finde) {
+    if (canchaRow.cantAlta > 0) filasCanchas.push(["Canchas (tarifa fin de semana)", String(canchaRow.cantAlta), fmtMoney(canchaRow.cantAlta * PRECIO_CANCHA_FINDE)]);
+  } else {
+    if (canchaRow.cantBaja > 0) filasCanchas.push(["Canchas 3pm-5pm", String(canchaRow.cantBaja), fmtMoney(canchaRow.cantBaja * PRECIO_CANCHA_BAJA)]);
+    if (canchaRow.cantAlta > 0) filasCanchas.push(["Canchas 6pm en adelante", String(canchaRow.cantAlta), fmtMoney(canchaRow.cantAlta * PRECIO_CANCHA_ALTA)]);
+  }
+  const totalDineroCanchas = calcularCanchas(fecha, canchaRow.festivo, canchaRow.cantBaja, canchaRow.cantAlta).totalDinero;
 
   docPdf.autoTable({
     startY: y + 6,
-    head: [["Hora", "Canchas vendidas", "Subtotal"]],
-    body: filasCanchas.length
-      ? filasCanchas.map(r => [r.hora, String(r.cant), fmtMoney(r.subtotal)])
-      : [["Sin canchas vendidas registradas", "", ""]],
+    head: [["Franja", "Canchas vendidas", "Subtotal"]],
+    body: filasCanchas.length ? filasCanchas : [["Sin canchas vendidas registradas", "", ""]],
     styles: { fontSize: 9 },
     headStyles: { fillColor: [46, 92, 79] },
   });
