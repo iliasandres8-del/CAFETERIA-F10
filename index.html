@@ -123,6 +123,8 @@
   .ci-gate-error { color:var(--salida); font-size:12px; margin-top:8px; min-height:14px; }
   #ci-loading { position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:13px; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 
@@ -171,7 +173,7 @@ const firebaseConfig = {
   messagingSenderId: "1012297436617",
   appId: "1:1012297436617:web:ef2509c88215e62759ec18",
 };
-const CONTRASENA_ACCESO = "12345f10";
+const CONTRASENA_ACCESO = "cambia-esta-clave";
 /* =========================================================================== */
 
 const app = initializeApp(firebaseConfig);
@@ -204,6 +206,20 @@ function fmtMoney(n) { return "$" + Math.round(n || 0).toLocaleString("es-CO"); 
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 
 const UNIDADES = ["unidades", "kg", "g", "l", "ml", "cajas", "bolsas"];
+const HORAS_CANCHA = [15, 16, 17, 18, 19, 20, 21, 22]; // 3pm a 10pm
+
+function esFinDeSemana(fecha) {
+  const dia = new Date(fecha + "T00:00:00").getDay(); // 0=domingo,5=viernes,6=sábado
+  return dia === 0 || dia === 5 || dia === 6;
+}
+function precioCanchaHora(fecha, hora, festivo) {
+  if (festivo || esFinDeSemana(fecha)) return 100000;
+  return hora <= 17 ? 60000 : 80000; // 3pm,4pm,5pm = 60000 · 6pm en adelante = 80000
+}
+function fmtHora12(hora) {
+  const h = hora % 12 === 0 ? 12 : hora % 12;
+  return h + (hora < 12 ? ":00 AM" : ":00 PM");
+}
 
 let toastTimer = null;
 function notify(text) {
@@ -243,10 +259,12 @@ const state = {
   distribuidoras: [],
   pedidos: [],
   conteos: [],
+  canchas: [],
   tab: "dashboard",
   cal: { year: new Date().getFullYear(), month: new Date().getMonth(), selected: isoLocal(new Date()) },
   invRows: {},
   catExpanded: {},
+  canchaRows: {},
 };
 
 function getProducto(id) { return state.productos.find(p => p.id === id); }
@@ -323,15 +341,27 @@ async function guardarDia(fecha, filas) {
   }
   notify("Inventario del día guardado.");
 }
+async function guardarCanchasDia(fecha, slots, festivo) {
+  const existente = state.canchas.find(c => c.fecha === fecha);
+  const data = { fecha, slots, festivo: !!festivo, actualizado: nowISO() };
+  if (existente) {
+    await updateDoc(doc(db, "canchas", existente.id), data);
+  } else {
+    await addDoc(collection(db, "canchas"), data);
+  }
+}
 async function borrarDia(fecha) {
   const registros = state.conteos.filter(c => c.fecha === fecha);
-  if (registros.length === 0) return;
+  const canchaDoc = state.canchas.find(c => c.fecha === fecha);
+  if (registros.length === 0 && !canchaDoc) return;
   const ok = window.confirm(`¿Eliminar todo el inventario guardado de ${fmtFechaLarga(fecha)}? Esta acción no se puede deshacer.`);
   if (!ok) return;
   for (const r of registros) {
     await deleteDoc(doc(db, "conteos", r.id));
   }
+  if (canchaDoc) await deleteDoc(doc(db, "canchas", canchaDoc.id));
   delete state.invRows[fecha];
+  delete state.canchaRows[fecha];
   notify("Inventario del día eliminado.");
 }
 
@@ -368,15 +398,24 @@ function headerHTML(title) {
 function viewDashboard() {
   const hoyISO = isoLocal(new Date());
   const mesPrefix = hoyISO.slice(0, 7);
-  const ventaHoy = state.conteos.filter(c => c.fecha === hoyISO).reduce((acc, c) => acc + c.dinero, 0);
-  const ventaMes = state.conteos.filter(c => c.fecha.slice(0, 7) === mesPrefix).reduce((acc, c) => acc + c.dinero, 0);
+  const ventaCafeHoy = state.conteos.filter(c => c.fecha === hoyISO).reduce((acc, c) => acc + c.dinero, 0);
+  const ventaCafeMes = state.conteos.filter(c => c.fecha.slice(0, 7) === mesPrefix).reduce((acc, c) => acc + c.dinero, 0);
+  const dineroCanchasDia = (fecha) => {
+    const c = state.canchas.find(x => x.fecha === fecha);
+    if (!c) return 0;
+    return HORAS_CANCHA.reduce((acc, h) => acc + (Number(c.slots[h]) || 0) * precioCanchaHora(fecha, h, c.festivo), 0);
+  };
+  const ventaCanchasHoy = dineroCanchasDia(hoyISO);
+  const ventaCanchasMes = state.canchas.filter(c => c.fecha.slice(0, 7) === mesPrefix).reduce((acc, c) => acc + dineroCanchasDia(c.fecha), 0);
+  const ventaHoy = ventaCafeHoy + ventaCanchasHoy;
+  const ventaMes = ventaCafeMes + ventaCanchasMes;
 
   let html = headerHTML("Resumen");
   html += `<div class="ci-cards">
     <div class="ci-card"><div class="ci-card-label">Venta de hoy</div><div class="ci-card-value">${fmtMoney(ventaHoy)}</div></div>
     <div class="ci-card"><div class="ci-card-label">Venta de este mes</div><div class="ci-card-value">${fmtMoney(ventaMes)}</div></div>
   </div>`;
-  html += `<div class="ci-hint" style="margin-bottom:20px">La venta del mes suma automáticamente todos los días que hayas guardado en el Inventario diario.</div>`;
+  html += `<div class="ci-hint" style="margin-bottom:20px">Incluye cafetería y canchas, sumando automáticamente todos los días que hayas guardado en el Inventario diario.</div>`;
   return html;
 }
 
@@ -475,7 +514,21 @@ function viewInventario() {
   const filas = state.invRows[selectedDate];
   const yaGuardado = state.conteos.some(c => c.fecha === selectedDate);
 
-  const hasData = (dateStr) => state.conteos.some(c => c.fecha === dateStr);
+  // ---- canchas del día ----
+  const canchaDoc = state.canchas.find(c => c.fecha === selectedDate);
+  if (!state.canchaRows[selectedDate]) {
+    state.canchaRows[selectedDate] = {
+      festivo: canchaDoc ? !!canchaDoc.festivo : false,
+      slots: HORAS_CANCHA.reduce((acc, h) => {
+        acc[h] = canchaDoc && canchaDoc.slots ? (canchaDoc.slots[h] || 0) : 0;
+        return acc;
+      }, {}),
+    };
+  }
+  const canchaRow = state.canchaRows[selectedDate];
+  const yaGuardadoCanchas = !!canchaDoc;
+
+  const hasData = (dateStr) => state.conteos.some(c => c.fecha === dateStr) || state.canchas.some(c => c.fecha === dateStr);
   const firstOfMonth = new Date(cal.year, cal.month, 1);
   const startOffset = (firstOfMonth.getDay() + 6) % 7;
   const daysInMonth = new Date(cal.year, cal.month + 1, 0).getDate();
@@ -503,18 +556,25 @@ function viewInventario() {
     <div class="ci-cal-legend"><span></span>día con inventario guardado</div>
   </div>`;
 
+  let totalVendido = 0, totalDineroProductos = 0;
+  filas.forEach(f => {
+    const vendido = (Number(f.entrada) || 0) - (Number(f.salida) || 0);
+    totalVendido += vendido;
+    totalDineroProductos += vendido * (Number(f.precio) || 0);
+  });
+
+  let totalCanchas = 0, totalDineroCanchas = 0;
+  HORAS_CANCHA.forEach(h => {
+    const cant = Number(canchaRow.slots[h]) || 0;
+    totalCanchas += cant;
+    totalDineroCanchas += cant * precioCanchaHora(selectedDate, h, canchaRow.festivo);
+  });
+  const totalGeneral = totalDineroProductos + totalDineroCanchas;
+
   let bodyHTML = `<div class="ci-section"><div class="ci-section-head" style="text-transform:capitalize">${fmtFechaLarga(selectedDate)}</div><div class="ci-section-body">`;
   if (productos.length === 0) {
     bodyHTML += `<div class="ci-empty">Agrega productos para poder registrar el inventario del día.</div>`;
   } else {
-    let totalVendido = 0, totalDinero = 0;
-    // pre-calcular totales sobre TODAS las filas (independiente de qué categorías estén plegadas)
-    filas.forEach(f => {
-      const vendido = (Number(f.entrada) || 0) - (Number(f.salida) || 0);
-      totalVendido += vendido;
-      totalDinero += vendido * (Number(f.precio) || 0);
-    });
-
     const gruposHTML = agruparPorCategoria(productos).map(grupo => {
       let seccion = catHeaderHTML(grupo.nombre, grupo.productos.length);
       if (isCatExpanded(grupo.nombre)) {
@@ -540,15 +600,47 @@ function viewInventario() {
     bodyHTML += gruposHTML + `
     <div class="ci-daytotal">
       <div class="ci-daytotal-item"><div>Total vendido</div><strong>${totalVendido}</strong></div>
-      <div class="ci-daytotal-item"><div>Total del día</div><strong>${fmtMoney(totalDinero)}</strong></div>
-    </div>
-    <div class="ci-dia-actions">
-      <button class="ci-btn" id="btn-guardar-dia">✓ ${yaGuardado ? "Actualizar" : "Guardar"} inventario del día</button>
-      ${yaGuardado ? `<button class="ci-btn peligro secondary" id="btn-borrar-dia">🗑 Eliminar datos de este día</button>` : ""}
-    </div>
-    <div class="ci-hint">La entrada se completa sola con lo que quedó registrado el día anterior. Si el día ya tiene datos guardados, puedes corregirlos aquí mismo y darle "Actualizar". Haz clic en el nombre de una categoría para plegarla o desplegarla.</div>`;
+      <div class="ci-daytotal-item"><div>Total cafetería</div><strong>${fmtMoney(totalDineroProductos)}</strong></div>
+    </div>`;
   }
   bodyHTML += `</div></div>`;
+
+  // ---- sección canchas ----
+  const finde = esFinDeSemana(selectedDate);
+  bodyHTML += `<div class="ci-section"><div class="ci-section-head">⚽ Canchas vendidas</div><div class="ci-section-body">
+    ${!finde ? `<label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:14px;cursor:pointer">
+      <input type="checkbox" id="chk-festivo" ${canchaRow.festivo ? "checked" : ""} /> Marcar este día como festivo (tarifa de fin de semana)
+    </label>` : `<div class="ci-hint" style="margin-top:0;margin-bottom:14px">Este día ya tiene tarifa de fin de semana ($100.000 fijo por hora).</div>`}
+    <table class="ci-table"><thead><tr><th>Hora</th><th>Precio</th><th>Canchas vendidas</th><th>Subtotal</th></tr></thead><tbody>
+    ${HORAS_CANCHA.map(h => {
+      const precio = precioCanchaHora(selectedDate, h, canchaRow.festivo);
+      const cant = Number(canchaRow.slots[h]) || 0;
+      return `<tr>
+        <td>${fmtHora12(h)}</td>
+        <td class="ci-mono">${fmtMoney(precio)}</td>
+        <td><input type="number" min="0" max="4" class="cancha-input" data-hora="${h}" value="${cant}" /></td>
+        <td class="ci-mono">${fmtMoney(cant * precio)}</td>
+      </tr>`;
+    }).join("")}
+    </tbody></table>
+    <div class="ci-daytotal">
+      <div class="ci-daytotal-item"><div>Canchas vendidas</div><strong>${totalCanchas}</strong></div>
+      <div class="ci-daytotal-item"><div>Total canchas</div><strong>${fmtMoney(totalDineroCanchas)}</strong></div>
+    </div>
+  </div></div>`;
+
+  // ---- total general + acciones ----
+  bodyHTML += `<div class="ci-section"><div class="ci-section-body">
+    <div class="ci-daytotal" style="margin-top:0;padding-top:0;border-top:none">
+      <div class="ci-daytotal-item"><div>Total general del día</div><strong>${fmtMoney(totalGeneral)}</strong></div>
+    </div>
+    <div class="ci-dia-actions">
+      <button class="ci-btn" id="btn-guardar-dia">✓ ${(yaGuardado || yaGuardadoCanchas) ? "Actualizar" : "Guardar"} inventario del día</button>
+      ${(yaGuardado || yaGuardadoCanchas) ? `<button class="ci-btn peligro secondary" id="btn-borrar-dia">🗑 Eliminar datos de este día</button>` : ""}
+      <button class="ci-btn secondary" id="btn-pdf-dia">📄 Generar PDF de este día</button>
+    </div>
+    <div class="ci-hint">La entrada de cafetería se completa sola con lo que quedó registrado el día anterior. Haz clic en el nombre de una categoría para plegarla o desplegarla.</div>
+  </div></div>`;
 
   return headerHTML("Inventario diario") + `<div class="ci-inv-layout"><div class="ci-inv-side">${calHTML}</div><div class="ci-inv-body">${bodyHTML}</div></div>`;
 }
@@ -656,10 +748,27 @@ function attachHandlers() {
     if (fila) fila[inp.dataset.campo] = inp.value;
     render();
   });
+  document.querySelectorAll(".cancha-input").forEach(inp => inp.onchange = () => {
+    const row = state.canchaRows[state.cal.selected];
+    if (row) row.slots[inp.dataset.hora] = inp.value;
+    render();
+  });
+  const chkFestivo = document.getElementById("chk-festivo");
+  if (chkFestivo) chkFestivo.onchange = () => {
+    const row = state.canchaRows[state.cal.selected];
+    if (row) row.festivo = chkFestivo.checked;
+    render();
+  };
   const btnGuardarDia = document.getElementById("btn-guardar-dia");
-  if (btnGuardarDia) btnGuardarDia.onclick = () => guardarDia(state.cal.selected, state.invRows[state.cal.selected]);
+  if (btnGuardarDia) btnGuardarDia.onclick = async () => {
+    const fecha = state.cal.selected;
+    await guardarDia(fecha, state.invRows[fecha]);
+    await guardarCanchasDia(fecha, state.canchaRows[fecha].slots, state.canchaRows[fecha].festivo);
+  };
   const btnBorrarDia = document.getElementById("btn-borrar-dia");
   if (btnBorrarDia) btnBorrarDia.onclick = () => borrarDia(state.cal.selected);
+  const btnPdfDia = document.getElementById("btn-pdf-dia");
+  if (btnPdfDia) btnPdfDia.onclick = () => generarPDFDia(state.cal.selected);
 
   // pedidos
   const fpd = document.getElementById("form-pedido");
@@ -670,6 +779,77 @@ function attachHandlers() {
     fpd.reset();
   };
   document.querySelectorAll(".btn-pedido").forEach(b => b.onclick = () => marcarPedido(b.dataset.id, b.dataset.estado));
+}
+
+function generarPDFDia(fecha) {
+  if (!window.jspdf) {
+    notify("No se pudo cargar el generador de PDF. Revisa tu conexión a internet.");
+    return;
+  }
+  const { jsPDF } = window.jspdf;
+  const docPdf = new jsPDF();
+  const filas = state.invRows[fecha] || [];
+  const canchaRow = state.canchaRows[fecha] || { festivo: false, slots: {} };
+
+  docPdf.setFontSize(16);
+  docPdf.text("Cafetería F10 - Resumen del día", 14, 16);
+  docPdf.setFontSize(11);
+  docPdf.text(fmtFechaLarga(fecha), 14, 24);
+
+  const filasProductos = filas
+    .map(f => {
+      const p = getProducto(f.productoId);
+      const vendido = (Number(f.entrada) || 0) - (Number(f.salida) || 0);
+      const dinero = vendido * (Number(f.precio) || 0);
+      return { nombre: p ? p.nombre : "—", vendido, unidad: p ? p.unidad : "", dinero };
+    })
+    .filter(r => r.vendido !== 0);
+
+  let totalDineroProductos = 0;
+  filasProductos.forEach(r => totalDineroProductos += r.dinero);
+
+  docPdf.autoTable({
+    startY: 30,
+    head: [["Producto", "Vendido", "Dinero"]],
+    body: filasProductos.length
+      ? filasProductos.map(r => [r.nombre, `${r.vendido} ${r.unidad}`, fmtMoney(r.dinero)])
+      : [["Sin ventas de cafetería registradas", "", ""]],
+    styles: { fontSize: 9 },
+    headStyles: { fillColor: [46, 92, 79] },
+  });
+
+  let y = docPdf.lastAutoTable.finalY + 6;
+  docPdf.setFontSize(11);
+  docPdf.text(`Total cafetería: ${fmtMoney(totalDineroProductos)}`, 14, y);
+
+  const filasCanchas = HORAS_CANCHA
+    .map(h => {
+      const cant = Number(canchaRow.slots[h]) || 0;
+      const precio = precioCanchaHora(fecha, h, canchaRow.festivo);
+      return { hora: fmtHora12(h), cant, subtotal: cant * precio };
+    })
+    .filter(r => r.cant > 0);
+
+  let totalDineroCanchas = 0;
+  filasCanchas.forEach(r => totalDineroCanchas += r.subtotal);
+
+  docPdf.autoTable({
+    startY: y + 6,
+    head: [["Hora", "Canchas vendidas", "Subtotal"]],
+    body: filasCanchas.length
+      ? filasCanchas.map(r => [r.hora, String(r.cant), fmtMoney(r.subtotal)])
+      : [["Sin canchas vendidas registradas", "", ""]],
+    styles: { fontSize: 9 },
+    headStyles: { fillColor: [46, 92, 79] },
+  });
+
+  y = docPdf.lastAutoTable.finalY + 6;
+  docPdf.setFontSize(11);
+  docPdf.text(`Total canchas: ${fmtMoney(totalDineroCanchas)}`, 14, y);
+  docPdf.setFontSize(13);
+  docPdf.text(`Total general del día: ${fmtMoney(totalDineroProductos + totalDineroCanchas)}`, 14, y + 10);
+
+  docPdf.save(`cafeteria-f10-${fecha}.pdf`);
 }
 
 function cambiarMes(delta) {
@@ -688,6 +868,7 @@ function iniciarApp() {
   suscribir("distribuidoras", "distribuidoras");
   suscribir("pedidos", "pedidos");
   suscribir("conteos", "conteos");
+  suscribir("canchas", "canchas");
 }
 
 function mostrarGate() {
