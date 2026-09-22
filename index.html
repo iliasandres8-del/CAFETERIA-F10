@@ -4,19 +4,40 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://ptkxxyqwbuotqhkiiszx.supabase.co wss://ptkxxyqwbuotqhkiiszx.supabase.co; base-uri 'self'; form-action 'self'" />
-<title>Cafetería F10 — Inventario</title>
+<title>Club F-10 — Caja e inventario</title>
 <link rel="icon" type="image/png" href="data:image/png;base64,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">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+  /* Identidad Club Deportivo F-10: azul oscuro + rojo de club sobre blanco. El azul del
+     acento de marca (--accent) es muy oscuro para usarlo como color de barras en una
+     gráfica: --chart-hue es una versión más clara, ya validada con dataviz/validate_palette.js. */
   :root {
-    --bg: #EFF1F3; --surface: #FFFFFF; --ink: #1B1E24; --muted: #6B7280; --faint: #9CA3AF;
-    --line: #E1E4E8; --accent: #2E5C4F; --accent-soft: #E4EEEA;
-    --entrada: #2F7A54; --entrada-soft: #E5F3EB; --salida: #AF4530; --salida-soft: #F7E7E2;
-    --amber: #B4791A; --amber-soft: #FBF0DD; --radius: 10px;
+    --bg: #F3F4F7; --surface: #FFFFFF; --ink: #12172A; --muted: #5B6478; --faint: #98A1B5;
+    --line: #E1E4EC; --accent: #13294B; --accent-soft: #E6EAF2;
+    --brand-red: #C8102E; --brand-red-soft: #FBE7EA;
+    --entrada: #2F7A54; --entrada-soft: #E5F3EB; --salida: #B5502F; --salida-soft: #F7E8E1;
+    --amber: #B4791A; --amber-soft: #FBF0DD; --chart-hue: #2E5C99; --radius: 10px;
+  }
+  :root[data-theme="dark"] {
+    --bg: #0D1220; --surface: #161C2C; --ink: #EDEFF6; --muted: #9AA3BC; --faint: #68708A;
+    --line: #262E44; --accent: #4A6FA5; --accent-soft: #1C2740;
+    --brand-red: #FF4D5E; --brand-red-soft: #3A1620;
+    --entrada: #4CAF7A; --entrada-soft: #15301F; --salida: #D97A54; --salida-soft: #3A2015;
+    --amber: #E0A83D; --amber-soft: #332508; --chart-hue: #5C93D8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0D1220; --surface: #161C2C; --ink: #EDEFF6; --muted: #9AA3BC; --faint: #68708A;
+      --line: #262E44; --accent: #4A6FA5; --accent-soft: #1C2740;
+      --brand-red: #FF4D5E; --brand-red-soft: #3A1620;
+      --entrada: #4CAF7A; --entrada-soft: #15301F; --salida: #D97A54; --salida-soft: #3A2015;
+      --amber: #E0A83D; --amber-soft: #332508; --chart-hue: #5C93D8;
+    }
   }
   * { box-sizing: border-box; }
   html, body { margin:0; padding:0; background: var(--bg); color: var(--ink); font-family:'Inter',sans-serif; }
+  body { transition: background-color .15s ease, color .15s ease; }
   .ci-mono { font-family:'IBM Plex Mono',monospace; }
   .ci-display { font-family:'Space Grotesk',sans-serif; }
 
@@ -113,6 +134,37 @@
   .ci-cat-arrow { width:12px; display:inline-block; text-align:center; color:var(--muted); font-size:10px; }
   .ci-cat-count { color:var(--faint); font-weight:400; font-size:12px; }
 
+  /* ---- escudo del club (placeholder: reemplázalo por el escudo real cuando lo tengas) ---- */
+  .ci-crest { width:30px; height:30px; border-radius:50%; background: conic-gradient(from 180deg, var(--brand-red) 0 50%, var(--accent) 50% 100%); display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow: inset 0 0 0 2px var(--surface); }
+  .ci-crest span { color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:10px; letter-spacing:-0.02em; }
+  .ci-crest.lg { width:52px; height:52px; margin:0 auto 10px; }
+  .ci-crest.lg span { font-size:16px; }
+  .ci-brand-row { display:flex; align-items:center; gap:9px; padding:4px 10px 18px; }
+  .ci-brand-row .ci-brand { padding:0; }
+
+  /* ---- stock bajo ---- */
+  .ci-badge.stockbajo { background: var(--brand-red-soft); color: var(--brand-red); }
+
+  /* ---- conexión ---- */
+  .ci-offline-banner { display:none; position:fixed; top:0; left:0; right:0; z-index:110; background: var(--amber); color:#241a00; font-size:12.5px; font-weight:600; text-align:center; padding:7px; }
+  .ci-offline-banner.show { display:block; }
+
+  /* ---- gráfica de ventas (barras) ---- */
+  .ci-spark { display:flex; align-items:flex-end; gap:8px; height:110px; padding-top:6px; }
+  .ci-spark-col { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:6px; cursor:default; }
+  .ci-spark-bar-wrap { flex:1; display:flex; align-items:flex-end; width:100%; justify-content:center; }
+  .ci-spark-bar { width:60%; min-width:10px; background: var(--chart-hue); border-radius:4px 4px 2px 2px; transition: opacity .12s ease; position:relative; }
+  .ci-spark-col:hover .ci-spark-bar { opacity:.8; }
+  .ci-spark-col.hoy .ci-spark-bar { background: var(--brand-red); }
+  .ci-spark-day { font-size:10.5px; color:var(--faint); text-transform:capitalize; }
+  .ci-spark-tip { position:absolute; bottom:100%; left:50%; transform:translateX(-50%); margin-bottom:6px; background:var(--ink); color:var(--surface); font-size:11px; padding:4px 7px; border-radius:5px; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .1s ease; }
+  .ci-spark-col:hover .ci-spark-tip { opacity:1; }
+
+  /* ---- resumen: desglose cafetería/canchas ---- */
+  .ci-breakdown { display:flex; gap:16px; margin-top:10px; font-size:12px; color:var(--muted); }
+  .ci-breakdown span b { color:var(--ink); font-family:'IBM Plex Mono',monospace; }
+  .ci-dot { width:7px; height:7px; border-radius:50%; display:inline-block; margin-right:5px; }
+
   /* login gate */
   #ci-gate { position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; z-index:100; }
   .ci-gate-box { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:32px; width:320px; max-width:calc(100vw - 32px); text-align:center; }
@@ -125,6 +177,25 @@
   .ci-gate-box button { width:100%; }
   .ci-gate-error { color:var(--salida); font-size:12px; margin-top:8px; min-height:14px; }
   #ci-loading { position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:13px; }
+
+  /* ---- celular: la caja se maneja de noche desde el mostrador, con el teléfono ---- */
+  @media (max-width: 720px) {
+    #ci-root.show { flex-direction:column; }
+    .ci-sidebar { width:100%; flex-direction:row; align-items:center; position:fixed; bottom:0; left:0; right:0; z-index:40;
+      padding:6px 4px; border-right:none; border-top:1px solid var(--line); overflow-x:auto; gap:2px; }
+    .ci-brand-row { display:none; }
+    .ci-nav-btn { flex-direction:column; gap:2px; font-size:10.5px; padding:7px 8px; flex-shrink:0; min-width:60px; text-align:center; }
+    .ci-nav-out { margin-top:0; order:99; }
+    .ci-main { padding:16px 14px 90px; max-width:100%; }
+    .ci-inv-layout { flex-direction:column; }
+    .ci-cal { width:100%; }
+    .ci-inv-body { min-width:0; width:100%; }
+    table.ci-table input[type=number] { width:56px; min-height:38px; font-size:14px; }
+    .ci-btn { min-height:40px; }
+    .ci-cards { grid-template-columns: 1fr 1fr; }
+    .ci-card-value { font-size:24px; }
+    .ci-header { flex-wrap:wrap; gap:4px; }
+  }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" integrity="sha512-2/YdOMV+YNpanLCF5MdQwaoFRVbTmrJ4u4EpqS/USXAQNUDgI5uwYi6J98WVtJKcfe1AbgerygzDFToxAlOGEQ==" crossorigin="anonymous"></script>
@@ -134,9 +205,12 @@
 
 <div id="ci-loading">Cargando…</div>
 
+<div class="ci-offline-banner" id="ci-offline-banner">Sin conexión — lo que hagas ahora no se está guardando. Espera a que vuelva la señal.</div>
+
 <div id="ci-gate" style="display:none;">
   <div class="ci-gate-box" id="ci-gate-main">
-    <h1>Cafetería <span style="color:var(--accent)">F10</span></h1>
+    <div class="ci-crest lg"><span>F10</span></div>
+    <h1>Club <span style="color:var(--brand-red)">F-10</span></h1>
     <p id="ci-gate-sub">Inicia sesión para entrar</p>
     <form id="ci-gate-form" novalidate>
       <input id="ci-gate-email" type="email" placeholder="Correo" autocomplete="username" />
@@ -155,13 +229,14 @@
 
 <div id="ci-root">
   <div class="ci-sidebar">
-    <div class="ci-brand">Cafetería <span>F10</span></div>
-    <button class="ci-nav-btn" data-tab="dashboard">📊 Resumen</button>
-    <button class="ci-nav-btn" data-tab="productos">📦 Productos</button>
-    <button class="ci-nav-btn" data-tab="distribuidoras">🚚 Distribuidoras</button>
-    <button class="ci-nav-btn" data-tab="inventario">📅 Inventario diario</button>
-    <button class="ci-nav-btn" data-tab="pedidos">📋 Pedidos</button>
-    <button class="ci-nav-btn ci-nav-out" id="ci-signout" type="button">⎋ Cerrar sesión</button>
+    <div class="ci-brand-row"><div class="ci-crest"><span>10</span></div><div class="ci-brand">Club <span>F-10</span></div></div>
+    <button class="ci-nav-btn" data-tab="dashboard">📊<span> Resumen</span></button>
+    <button class="ci-nav-btn" data-tab="productos">📦<span> Productos</span></button>
+    <button class="ci-nav-btn" data-tab="distribuidoras">🚚<span> Distribuidoras</span></button>
+    <button class="ci-nav-btn" data-tab="inventario">📅<span> Inventario diario</span></button>
+    <button class="ci-nav-btn" data-tab="pedidos">📋<span> Pedidos</span></button>
+    <button class="ci-nav-btn" id="ci-theme-toggle" type="button">🌙<span> Modo oscuro</span></button>
+    <button class="ci-nav-btn ci-nav-out" id="ci-signout" type="button">⎋<span> Cerrar sesión</span></button>
   </div>
   <div class="ci-main" id="ci-main"></div>
 </div>
@@ -274,7 +349,7 @@ function getDistribuidora(id) { return state.distribuidoras.find(d => d.id === i
 
 /* ---------- Supabase: mapeo de columnas (snake_case) a los nombres que usa la app ---------- */
 const MAPPERS = {
-  caf_productos: r => ({ id: r.id, nombre: r.nombre, categoria: r.categoria, unidad: r.unidad, cantidadExistente: r.cantidad_existente, precio: r.precio, creado: r.creado }),
+  caf_productos: r => ({ id: r.id, nombre: r.nombre, categoria: r.categoria, unidad: r.unidad, cantidadExistente: r.cantidad_existente, precio: r.precio, stockMinimo: r.stock_minimo, creado: r.creado }),
   caf_distribuidoras: r => ({ id: r.id, nombre: r.nombre, contacto: r.contacto, activo: r.activo, creado: r.creado }),
   caf_pedidos: r => ({ id: r.id, productoId: r.producto_id, distribuidoraId: r.distribuidora_id, cantidad: r.cantidad, estado: r.estado, historialEstados: r.historial || [], creado: r.creado }),
   caf_conteos: r => ({ id: r.id, fecha: r.fecha, productoId: r.producto_id, entrada: r.entrada, salida: r.salida, precio: r.precio, vendido: r.vendido, dinero: r.dinero, actualizado: r.actualizado }),
@@ -287,11 +362,12 @@ function errNotify(mensaje, error) {
 }
 
 /* ---------- Supabase: escritura ---------- */
-async function crearProducto({ nombre, categoria, unidad, cantidadExistente, precio }) {
+async function crearProducto({ nombre, categoria, unidad, cantidadExistente, precio, stockMinimo }) {
   if (!nombre.trim()) return;
   const { error } = await sb.from("caf_productos").insert({
     nombre: nombre.trim(), categoria: categoria.trim(), unidad: unidad || "unidades",
     cantidad_existente: parseFloat(cantidadExistente) || 0, precio: parseFloat(precio) || 0,
+    stock_minimo: parseFloat(stockMinimo) || 0,
   });
   if (error) return errNotify("No se pudo agregar el producto.", error);
   notify("Producto agregado.");
@@ -310,6 +386,12 @@ async function editarCantidadProducto(id, nuevaCantidad) {
   const { error } = await sb.from("caf_productos").update({ cantidad_existente: isNaN(val) ? 0 : val }).eq("id", id);
   if (error) return errNotify("No se pudo actualizar la cantidad.", error);
   notify("Cantidad actualizada.");
+}
+async function editarStockMinimo(id, nuevoMinimo) {
+  const val = parseFloat(nuevoMinimo);
+  const { error } = await sb.from("caf_productos").update({ stock_minimo: isNaN(val) ? 0 : val }).eq("id", id);
+  if (error) return errNotify("No se pudo actualizar el mínimo de stock.", error);
+  notify("Mínimo de stock actualizado.");
 }
 async function crearDistribuidora({ nombre, contacto }) {
   if (!nombre.trim()) return;
@@ -400,7 +482,7 @@ function cerrarSuscripciones() {
 
 /* ---------- render principal ---------- */
 function render() {
-  document.querySelectorAll(".ci-nav-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === state.tab));
+  document.querySelectorAll(".ci-nav-btn[data-tab]").forEach(b => b.classList.toggle("active", b.dataset.tab === state.tab));
   const main = document.getElementById("ci-main");
   if (state.tab === "dashboard") main.innerHTML = viewDashboard();
   else if (state.tab === "productos") main.innerHTML = viewProductos();
@@ -421,22 +503,49 @@ function viewDashboard() {
   const mesPrefix = hoyISO.slice(0, 7);
   const ventaCafeHoy = state.conteos.filter(c => c.fecha === hoyISO).reduce((acc, c) => acc + c.dinero, 0);
   const ventaCafeMes = state.conteos.filter(c => c.fecha.slice(0, 7) === mesPrefix).reduce((acc, c) => acc + c.dinero, 0);
-  const dineroCanchasDia = (fecha) => {
+  const canchasDia = (fecha) => {
     const c = state.canchas.find(x => x.fecha === fecha);
-    if (!c) return 0;
-    return calcularCanchas(fecha, c.festivo, c.cantBaja, c.cantAlta).totalDinero;
+    if (!c) return { dinero: 0, canchas: 0 };
+    const r = calcularCanchas(fecha, c.festivo, c.cantBaja, c.cantAlta);
+    return { dinero: r.totalDinero, canchas: r.totalCanchas };
   };
-  const ventaCanchasHoy = dineroCanchasDia(hoyISO);
-  const ventaCanchasMes = state.canchas.filter(c => c.fecha.slice(0, 7) === mesPrefix).reduce((acc, c) => acc + dineroCanchasDia(c.fecha), 0);
-  const ventaHoy = ventaCafeHoy + ventaCanchasHoy;
+  const canchasHoy = canchasDia(hoyISO);
+  const canchasMesArr = state.canchas.filter(c => c.fecha.slice(0, 7) === mesPrefix).map(c => canchasDia(c.fecha));
+  const ventaCanchasMes = canchasMesArr.reduce((a, x) => a + x.dinero, 0);
+  const totalCanchasMes = canchasMesArr.reduce((a, x) => a + x.canchas, 0);
+  const ventaHoy = ventaCafeHoy + canchasHoy.dinero;
   const ventaMes = ventaCafeMes + ventaCanchasMes;
+
+  // venta total (cafetería + canchas) de los últimos 7 días, para la gráfica
+  const dias = []; for (let i = 6; i >= 0; i--) dias.push(addDaysISO(hoyISO, -i));
+  const ventaDia = (fecha) => state.conteos.filter(c => c.fecha === fecha).reduce((a, c) => a + c.dinero, 0) + canchasDia(fecha).dinero;
+  const serie = dias.map(f => ({ fecha: f, valor: ventaDia(f) }));
+  const maxValor = Math.max(1, ...serie.map(s => s.valor));
 
   let html = headerHTML("Resumen");
   html += `<div class="ci-cards">
-    <div class="ci-card"><div class="ci-card-label">Venta de hoy</div><div class="ci-card-value">${fmtMoney(ventaHoy)}</div></div>
-    <div class="ci-card"><div class="ci-card-label">Venta de este mes</div><div class="ci-card-value">${fmtMoney(ventaMes)}</div></div>
+    <div class="ci-card"><div class="ci-card-label">Venta de hoy</div><div class="ci-card-value" style="color:var(--brand-red)">${fmtMoney(ventaHoy)}</div>
+      <div class="ci-breakdown"><span><span class="ci-dot" style="background:var(--chart-hue)"></span>Cafetería <b>${fmtMoney(ventaCafeHoy)}</b></span><span><span class="ci-dot" style="background:var(--entrada)"></span>Canchas <b>${fmtMoney(canchasHoy.dinero)}</b></span></div></div>
+    <div class="ci-card"><div class="ci-card-label">Venta de este mes</div><div class="ci-card-value" style="color:var(--brand-red)">${fmtMoney(ventaMes)}</div>
+      <div class="ci-breakdown"><span><span class="ci-dot" style="background:var(--chart-hue)"></span>Cafetería <b>${fmtMoney(ventaCafeMes)}</b></span><span><span class="ci-dot" style="background:var(--entrada)"></span>Canchas <b>${fmtMoney(ventaCanchasMes)}</b></span></div></div>
+    <div class="ci-card"><div class="ci-card-label">⚽ Canchas vendidas hoy</div><div class="ci-card-value">${canchasHoy.canchas}</div></div>
+    <div class="ci-card"><div class="ci-card-label">⚽ Canchas vendidas este mes</div><div class="ci-card-value">${totalCanchasMes}</div></div>
   </div>`;
-  html += `<div class="ci-hint" style="margin-bottom:20px">Incluye cafetería y canchas, sumando automáticamente todos los días que hayas guardado en el Inventario diario.</div>`;
+
+  html += `<div class="ci-section"><div class="ci-section-head">Venta total (cafetería + canchas) de los últimos 7 días</div><div class="ci-section-body">
+    <div class="ci-spark">
+      ${serie.map(s => {
+        const h = Math.max(4, Math.round((s.valor / maxValor) * 84));
+        const label = new Date(s.fecha + "T00:00:00").toLocaleDateString("es-ES", { weekday: "short" }).replace(".", "");
+        return `<div class="ci-spark-col ${s.fecha === hoyISO ? "hoy" : ""}">
+          <div class="ci-spark-bar-wrap"><div class="ci-spark-bar" style="height:${h}px"><span class="ci-spark-tip">${fmtMoney(s.valor)}</span></div></div>
+          <div class="ci-spark-day">${label}</div>
+        </div>`;
+      }).join("")}
+    </div>
+  </div></div>`;
+
+  html += `<div class="ci-hint" style="margin-bottom:20px">Incluye cafetería y canchas, sumando automáticamente todos los días que hayas guardado en el Inventario diario. Pasa el dedo o el mouse por una barra para ver el monto exacto de ese día.</div>`;
   return html;
 }
 
@@ -450,12 +559,21 @@ function viewProductos() {
       <div class="ci-field"><label>Unidad</label><select name="unidad" style="min-width:100px">${UNIDADES.map(u => `<option value="${u}">${u}</option>`).join("")}</select></div>
       <div class="ci-field"><label>Cantidad existente (opcional)</label><input type="number" min="0" step="0.01" name="cantidadExistente" style="min-width:90px" placeholder="0" /></div>
       <div class="ci-field"><label>Precio de venta (opcional)</label><input type="number" min="0" step="0.01" name="precio" style="min-width:100px" placeholder="0" /></div>
+      <div class="ci-field"><label>Stock mínimo (opcional)</label><input type="number" min="0" step="0.01" name="stockMinimo" style="min-width:90px" placeholder="0" /></div>
       <button class="ci-btn" type="submit">+ Agregar</button>
     </form>
     <datalist id="lista-categorias">
       ${[...new Set(state.productos.map(p => (p.categoria || "").trim()).filter(Boolean))].map(c => `<option value="${esc(c)}">`).join("")}
     </datalist>
+    <div class="ci-hint">El stock mínimo es opcional: si lo pones, cuando la cantidad existente baje hasta ahí (o menos) el producto se marca "Stock bajo". Déjalo en 0 para no usar la alerta.</div>
   </div></div>`;
+
+  const bajoStock = state.productos.filter(p => p.stockMinimo > 0 && p.cantidadExistente <= p.stockMinimo);
+  if (bajoStock.length) {
+    html += `<div class="ci-section"><div class="ci-section-head">🔻 Stock bajo (${bajoStock.length})</div><div class="ci-section-body">
+      ${bajoStock.map(p => `<span class="ci-badge stockbajo" style="margin:0 6px 6px 0">${esc(p.nombre)}: quedan ${p.cantidadExistente} ${esc(p.unidad)}</span>`).join("")}
+    </div></div>`;
+  }
 
   html += `<div class="ci-section"><div class="ci-section-head">Catálogo (${state.productos.length})</div><div class="ci-section-body">`;
   if (state.productos.length === 0) {
@@ -464,9 +582,11 @@ function viewProductos() {
     html += agruparPorCategoria(state.productos).map(grupo => {
       let seccion = catHeaderHTML(grupo.nombre, grupo.productos.length);
       if (isCatExpanded(grupo.nombre)) {
-        seccion += `<table class="ci-table"><thead><tr><th>Nombre</th><th>Cantidad existente</th><th>Precio</th><th></th></tr></thead><tbody>
-          ${grupo.productos.map(p => `<tr>
-            <td>${esc(p.nombre)}</td>
+        seccion += `<table class="ci-table"><thead><tr><th>Nombre</th><th>Cantidad existente</th><th>Precio</th><th>Stock mínimo</th><th></th></tr></thead><tbody>
+          ${grupo.productos.map(p => {
+            const bajo = p.stockMinimo > 0 && p.cantidadExistente <= p.stockMinimo;
+            return `<tr>
+            <td>${esc(p.nombre)}${bajo ? ` <span class="ci-badge stockbajo">Stock bajo</span>` : ""}</td>
             <td>
               <div style="display:flex;align-items:center;gap:6px">
                 <input type="number" step="0.01" class="cantidad-input" data-id="${p.id}" value="${p.cantidadExistente || 0}" style="width:80px" />
@@ -475,8 +595,15 @@ function viewProductos() {
               </div>
             </td>
             <td class="ci-mono">${fmtMoney(p.precio)}</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:6px">
+                <input type="number" step="0.01" class="minimo-input" data-id="${p.id}" value="${p.stockMinimo || 0}" style="width:70px" />
+                <button class="ci-btn secondary tiny btn-guardar-minimo" data-id="${p.id}">Guardar</button>
+              </div>
+            </td>
             <td><button class="ci-btn peligro secondary tiny btn-borrar-producto" data-id="${p.id}">Eliminar</button></td>
-          </tr>`).join("")}
+          </tr>`;
+          }).join("")}
         </tbody></table>`;
       }
       return seccion;
@@ -718,7 +845,9 @@ function viewPedidos() {
 
 /* ---------- listeners tras cada render ---------- */
 function attachHandlers() {
-  document.querySelectorAll(".ci-nav-btn").forEach(b => {
+  // ojo: esto se re-ejecuta en cada render(); [data-tab] evita reengachar los
+  // botones fijos del sidebar (tema, cerrar sesión), que tienen su propio onclick fijado una sola vez.
+  document.querySelectorAll(".ci-nav-btn[data-tab]").forEach(b => {
     b.onclick = () => { state.tab = b.dataset.tab; render(); };
   });
 
@@ -732,13 +861,17 @@ function attachHandlers() {
   if (fp) fp.onsubmit = async (e) => {
     e.preventDefault();
     const fd = new FormData(fp);
-    await crearProducto({ nombre: fd.get("nombre"), categoria: fd.get("categoria"), unidad: fd.get("unidad"), cantidadExistente: fd.get("cantidadExistente"), precio: fd.get("precio") });
+    await crearProducto({ nombre: fd.get("nombre"), categoria: fd.get("categoria"), unidad: fd.get("unidad"), cantidadExistente: fd.get("cantidadExistente"), precio: fd.get("precio"), stockMinimo: fd.get("stockMinimo") });
     fp.reset();
   };
   document.querySelectorAll(".btn-borrar-producto").forEach(b => b.onclick = () => borrarProducto(b.dataset.id));
   document.querySelectorAll(".btn-guardar-cantidad").forEach(b => b.onclick = () => {
     const input = document.querySelector(`.cantidad-input[data-id="${b.dataset.id}"]`);
     editarCantidadProducto(b.dataset.id, input.value);
+  });
+  document.querySelectorAll(".btn-guardar-minimo").forEach(b => b.onclick = () => {
+    const input = document.querySelector(`.minimo-input[data-id="${b.dataset.id}"]`);
+    editarStockMinimo(b.dataset.id, input.value);
   });
 
   const fd2 = document.getElementById("form-distribuidora");
@@ -812,7 +945,7 @@ function generarPDFDia(fecha) {
   const canchaRow = state.canchaRows[fecha] || { festivo: false, cantBaja: 0, cantAlta: 0 };
 
   docPdf.setFontSize(16);
-  docPdf.text("Cafetería F10 - Resumen del día", 14, 16);
+  docPdf.text("Club F-10 - Resumen del día", 14, 16);
   docPdf.setFontSize(11);
   docPdf.text(fmtFechaLarga(fecha), 14, 24);
 
@@ -835,7 +968,7 @@ function generarPDFDia(fecha) {
       ? filasProductos.map(r => [r.nombre, `${r.vendido} ${r.unidad}`, fmtMoney(r.dinero)])
       : [["Sin ventas de cafetería registradas", "", ""]],
     styles: { fontSize: 9 },
-    headStyles: { fillColor: [46, 92, 79] },
+    headStyles: { fillColor: [19, 41, 75] },
   });
 
   let y = docPdf.lastAutoTable.finalY + 6;
@@ -857,7 +990,7 @@ function generarPDFDia(fecha) {
     head: [["Franja", "Canchas vendidas", "Subtotal"]],
     body: filasCanchas.length ? filasCanchas : [["Sin canchas vendidas registradas", "", ""]],
     styles: { fontSize: 9 },
-    headStyles: { fillColor: [46, 92, 79] },
+    headStyles: { fillColor: [19, 41, 75] },
   });
 
   y = docPdf.lastAutoTable.finalY + 6;
@@ -943,6 +1076,32 @@ document.getElementById("ci-gate-form").addEventListener("submit", async (e) => 
 });
 document.getElementById("ci-noaccess-out").onclick = () => sb.auth.signOut();
 document.getElementById("ci-signout").onclick = () => sb.auth.signOut();
+
+/* ---------- modo oscuro/claro ---------- */
+function applyTheme(mode) {
+  document.documentElement.setAttribute("data-theme", mode);
+  const btn = document.getElementById("ci-theme-toggle");
+  if (btn) btn.innerHTML = mode === "dark" ? `☀️<span> Modo claro</span>` : `🌙<span> Modo oscuro</span>`;
+}
+(function initTheme() {
+  let saved = null;
+  try { saved = localStorage.getItem("ci_theme"); } catch (e) {}
+  const mode = saved || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  applyTheme(mode);
+})();
+document.getElementById("ci-theme-toggle").onclick = () => {
+  const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  applyTheme(next);
+  try { localStorage.setItem("ci_theme", next); } catch (e) {}
+};
+
+/* ---------- aviso de conexión: para que en la caja de noche no se pierda un guardado en silencio ---------- */
+function actualizarBannerConexion() {
+  document.getElementById("ci-offline-banner").classList.toggle("show", !navigator.onLine);
+}
+window.addEventListener("online", actualizarBannerConexion);
+window.addEventListener("offline", actualizarBannerConexion);
+actualizarBannerConexion();
 
 async function tieneAcceso() {
   const { data, error } = await sb.from("caf_acceso").select("user_id").maybeSingle();

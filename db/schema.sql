@@ -18,6 +18,8 @@ create table if not exists public.caf_productos (
   unidad            text not null default 'unidades',
   cantidad_existente numeric not null default 0,
   precio            numeric not null default 0 check (precio >= 0),
+  -- umbral para la etiqueta "stock bajo" en Productos; 0 = alerta desactivada para ese producto
+  stock_minimo      numeric not null default 0 check (stock_minimo >= 0),
   creado            timestamptz not null default now()
 );
 
