@@ -423,7 +423,17 @@ async function marcarPedido(id, estado) {
   }).eq("id", id);
   if (error) return errNotify("No se pudo actualizar el pedido.", error);
   if (estado === "recibido") {
-    notify("Pedido marcado como recibido. Recuerda contarlo en tu próximo inventario diario.");
+    // Sumar el pedido al stock automáticamente, para no depender de que alguien
+    // se acuerde de contarlo a mano en el próximo inventario diario.
+    const producto = getProducto(pedido.productoId);
+    if (producto) {
+      const nuevaCantidad = (Number(producto.cantidadExistente) || 0) + (Number(pedido.cantidad) || 0);
+      const { error: e2 } = await sb.from("caf_productos").update({ cantidad_existente: nuevaCantidad }).eq("id", producto.id);
+      if (e2) { errNotify("El pedido quedó recibido, pero no se pudo sumar al stock. Súmalo a mano.", e2); return; }
+      notify(`Pedido recibido. Se sumaron ${pedido.cantidad} ${producto.unidad} al stock de ${producto.nombre}.`);
+    } else {
+      notify("Pedido recibido. El producto ya no existe en el catálogo, cuenta el stock a mano.");
+    }
   } else {
     notify("Pedido cancelado.");
   }
@@ -839,7 +849,7 @@ function viewPedidos() {
     }).join("")}
     </tbody></table>`;
   }
-  html += `<div class="ci-hint">El pedido nunca se elimina; su historial de estados queda guardado. Cuando llegue el pedido, cuéntalo en tu próximo inventario diario.</div></div></div>`;
+  html += `<div class="ci-hint">El pedido nunca se elimina; su historial de estados queda guardado. Al marcarlo como recibido, la cantidad se suma sola al stock del producto en Productos.</div></div></div>`;
   return html;
 }
 
