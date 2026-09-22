@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://ptkxxyqwbuotqhkiiszx.supabase.co wss://ptkxxyqwbuotqhkiiszx.supabase.co; base-uri 'self'; form-action 'self'" />
 <title>Cafetería F10 — Inventario</title>
 <link rel="icon" type="image/png" href="data:image/png;base64,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">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -114,7 +115,9 @@
 
   /* login gate */
   #ci-gate { position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; z-index:100; }
-  .ci-gate-box { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:32px; width:280px; text-align:center; }
+  .ci-gate-box { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:32px; width:320px; max-width:calc(100vw - 32px); text-align:center; }
+  .ci-gate-link { background:none; border:none; color:var(--accent); font-size:12.5px; margin-top:12px; cursor:pointer; font-family:'Inter',sans-serif; }
+  .ci-nav-out { margin-top:auto; }
   .ci-gate-box h1 { font-family:'Space Grotesk',sans-serif; font-size:18px; margin:0 0 6px; }
   .ci-gate-box p { font-size:12.5px; color:var(--muted); margin:0 0 18px; }
   .ci-gate-box input { width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:7px; background:var(--bg); font-size:14px; margin-bottom:10px; outline:none; text-align:center; }
@@ -123,20 +126,30 @@
   .ci-gate-error { color:var(--salida); font-size:12px; margin-top:8px; min-height:14px; }
   #ci-loading { position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:13px; }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" integrity="sha512-2/YdOMV+YNpanLCF5MdQwaoFRVbTmrJ4u4EpqS/USXAQNUDgI5uwYi6J98WVtJKcfe1AbgerygzDFToxAlOGEQ==" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous"></script>
 </head>
 <body>
 
 <div id="ci-loading">Cargando…</div>
 
 <div id="ci-gate" style="display:none;">
-  <div class="ci-gate-box">
+  <div class="ci-gate-box" id="ci-gate-main">
     <h1>Cafetería <span style="color:var(--accent)">F10</span></h1>
-    <p>Ingresa la contraseña para entrar</p>
-    <input id="ci-gate-input" type="password" placeholder="Contraseña" />
-    <button class="ci-btn" id="ci-gate-btn">Entrar</button>
-    <div class="ci-gate-error" id="ci-gate-error"></div>
+    <p id="ci-gate-sub">Inicia sesión para entrar</p>
+    <form id="ci-gate-form" novalidate>
+      <input id="ci-gate-email" type="email" placeholder="Correo" autocomplete="username" />
+      <input id="ci-gate-input" type="password" placeholder="Contraseña" autocomplete="current-password" />
+      <button class="ci-btn" id="ci-gate-btn" type="submit">Entrar</button>
+    </form>
+    <button class="ci-gate-link" id="ci-gate-toggle" type="button">¿No tienes cuenta? Crea una</button>
+    <div class="ci-gate-error" id="ci-gate-error" role="alert"></div>
+  </div>
+  <div class="ci-gate-box" id="ci-noaccess" style="display:none;">
+    <h1>Sin acceso</h1>
+    <p>Iniciaste sesión como <strong id="ci-noaccess-mail"></strong>, pero esta cuenta aún no tiene permiso para ver la cafetería. Pide que la habiliten.</p>
+    <button class="ci-btn secondary" id="ci-noaccess-out" type="button">Cerrar sesión</button>
   </div>
 </div>
 
@@ -148,37 +161,25 @@
     <button class="ci-nav-btn" data-tab="distribuidoras">🚚 Distribuidoras</button>
     <button class="ci-nav-btn" data-tab="inventario">📅 Inventario diario</button>
     <button class="ci-nav-btn" data-tab="pedidos">📋 Pedidos</button>
+    <button class="ci-nav-btn ci-nav-out" id="ci-signout" type="button">⎋ Cerrar sesión</button>
   </div>
   <div class="ci-main" id="ci-main"></div>
 </div>
 
 <div class="ci-toast" id="ci-toast"></div>
 
-<!-- Firebase -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getAuth, signInAnonymously, onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {
-  getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<!-- Supabase -->
+<script>
+/* ====== Conexión a Supabase (proyecto torneo-f10, tablas caf_*) ======
+   La clave "anon" es pública por diseño; lo que protege los datos son las
+   políticas RLS de db/schema.sql (solo cuentas listadas en caf_acceso). */
+const SUPABASE_URL = "https://ptkxxyqwbuotqhkiiszx.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB0a3h4eXF3YnVvdHFoa2lpc3p4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0MjI2OTUsImV4cCI6MjEwNDk5ODY5NX0.rste8ln6sFVzS2QhyYNB4j5_043KBPSW5Y3CsDbBSjQ";
+/* ======================================================================= */
 
-/* ======================= CONFIGURA AQUÍ TU FIREBASE ======================= */
-const firebaseConfig = {
-  apiKey: "AIzaSyBgb48NqfkCYrrmXtX3wr114tQV064UT30",
-  authDomain: "cafeteria-f10.firebaseapp.com",
-  projectId: "cafeteria-f10",
-  storageBucket: "cafeteria-f10.firebasestorage.app",
-  messagingSenderId: "1012297436617",
-  appId: "1:1012297436617:web:ef2509c88215e62759ec18",
-};
-const CONTRASENA_ACCESO = "987654321";
-/* =========================================================================== */
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { persistSession: true, autoRefreshToken: true },
+});
 
 /* ---------- utilidades ---------- */
 const nowISO = () => new Date().toISOString();
@@ -271,15 +272,28 @@ const state = {
 function getProducto(id) { return state.productos.find(p => p.id === id); }
 function getDistribuidora(id) { return state.distribuidoras.find(d => d.id === id); }
 
-/* ---------- Firestore: escritura ---------- */
+/* ---------- Supabase: mapeo de columnas (snake_case) a los nombres que usa la app ---------- */
+const MAPPERS = {
+  caf_productos: r => ({ id: r.id, nombre: r.nombre, categoria: r.categoria, unidad: r.unidad, cantidadExistente: r.cantidad_existente, precio: r.precio, creado: r.creado }),
+  caf_distribuidoras: r => ({ id: r.id, nombre: r.nombre, contacto: r.contacto, activo: r.activo, creado: r.creado }),
+  caf_pedidos: r => ({ id: r.id, productoId: r.producto_id, distribuidoraId: r.distribuidora_id, cantidad: r.cantidad, estado: r.estado, historialEstados: r.historial || [], creado: r.creado }),
+  caf_conteos: r => ({ id: r.id, fecha: r.fecha, productoId: r.producto_id, entrada: r.entrada, salida: r.salida, precio: r.precio, vendido: r.vendido, dinero: r.dinero, actualizado: r.actualizado }),
+  caf_canchas: r => ({ id: r.id, fecha: r.fecha, cantBaja: r.cant_baja, cantAlta: r.cant_alta, festivo: r.festivo, actualizado: r.actualizado }),
+};
+
+function errNotify(mensaje, error) {
+  console.error(error);
+  notify(mensaje);
+}
+
+/* ---------- Supabase: escritura ---------- */
 async function crearProducto({ nombre, categoria, unidad, cantidadExistente, precio }) {
   if (!nombre.trim()) return;
-  await addDoc(collection(db, "productos"), {
-    nombre: nombre.trim(), categoria: categoria.trim(),
-    unidad: unidad || "unidades",
-    cantidadExistente: parseFloat(cantidadExistente) || 0,
-    precio: parseFloat(precio) || 0, creado: nowISO(),
+  const { error } = await sb.from("caf_productos").insert({
+    nombre: nombre.trim(), categoria: categoria.trim(), unidad: unidad || "unidades",
+    cantidad_existente: parseFloat(cantidadExistente) || 0, precio: parseFloat(precio) || 0,
   });
+  if (error) return errNotify("No se pudo agregar el producto.", error);
   notify("Producto agregado.");
 }
 async function borrarProducto(id) {
@@ -287,39 +301,45 @@ async function borrarProducto(id) {
   if (!p) return;
   const ok = window.confirm(`¿Eliminar "${p.nombre}" permanentemente? Esta acción no se puede deshacer.`);
   if (!ok) return;
-  await deleteDoc(doc(db, "productos", id));
+  const { error } = await sb.from("caf_productos").delete().eq("id", id);
+  if (error) return errNotify("No se pudo eliminar el producto.", error);
   notify("Producto eliminado.");
 }
 async function editarCantidadProducto(id, nuevaCantidad) {
   const val = parseFloat(nuevaCantidad);
-  await updateDoc(doc(db, "productos", id), { cantidadExistente: isNaN(val) ? 0 : val });
+  const { error } = await sb.from("caf_productos").update({ cantidad_existente: isNaN(val) ? 0 : val }).eq("id", id);
+  if (error) return errNotify("No se pudo actualizar la cantidad.", error);
   notify("Cantidad actualizada.");
 }
 async function crearDistribuidora({ nombre, contacto }) {
   if (!nombre.trim()) return;
-  await addDoc(collection(db, "distribuidoras"), { nombre: nombre.trim(), contacto: contacto.trim(), activo: true, creado: nowISO() });
+  const { error } = await sb.from("caf_distribuidoras").insert({ nombre: nombre.trim(), contacto: contacto.trim(), activo: true });
+  if (error) return errNotify("No se pudo agregar la distribuidora.", error);
   notify("Distribuidora agregada.");
 }
 async function toggleDistribuidora(id) {
   const d = getDistribuidora(id);
   if (!d) return;
-  await updateDoc(doc(db, "distribuidoras", id), { activo: !d.activo });
+  const { error } = await sb.from("caf_distribuidoras").update({ activo: !d.activo }).eq("id", id);
+  if (error) errNotify("No se pudo actualizar la distribuidora.", error);
 }
 async function crearPedido({ productoId, distribuidoraId, cantidad }) {
   const cant = parseInt(cantidad, 10);
   if (!productoId || !distribuidoraId || !cant || cant <= 0) return;
-  await addDoc(collection(db, "pedidos"), {
-    productoId, distribuidoraId, cantidad: cant, estado: "pendiente",
-    creado: nowISO(), historialEstados: [{ estado: "pendiente", fecha: nowISO() }],
+  const { error } = await sb.from("caf_pedidos").insert({
+    producto_id: productoId, distribuidora_id: distribuidoraId, cantidad: cant, estado: "pendiente",
+    historial: [{ estado: "pendiente", fecha: nowISO() }],
   });
+  if (error) return errNotify("No se pudo registrar el pedido.", error);
   notify("Pedido registrado.");
 }
 async function marcarPedido(id, estado) {
   const pedido = state.pedidos.find(x => x.id === id);
   if (!pedido || pedido.estado !== "pendiente") return;
-  await updateDoc(doc(db, "pedidos", id), {
-    estado, historialEstados: [...pedido.historialEstados, { estado, fecha: nowISO() }],
-  });
+  const { error } = await sb.from("caf_pedidos").update({
+    estado, historial: [...pedido.historialEstados, { estado, fecha: nowISO() }],
+  }).eq("id", id);
+  if (error) return errNotify("No se pudo actualizar el pedido.", error);
   if (estado === "recibido") {
     notify("Pedido marcado como recibido. Recuerda contarlo en tu próximo inventario diario.");
   } else {
@@ -327,29 +347,22 @@ async function marcarPedido(id, estado) {
   }
 }
 async function guardarDia(fecha, filas) {
-  for (const f of filas) {
-    const entrada = Number(f.entrada) || 0;
-    const salida = Number(f.salida) || 0;
-    const precio = Number(f.precio) || 0;
-    const vendido = entrada - salida;
-    const existente = state.conteos.find(c => c.fecha === fecha && c.productoId === f.productoId);
-    const data = { fecha, productoId: f.productoId, entrada, salida, vendido, precio, dinero: vendido * precio, actualizado: nowISO() };
-    if (existente) {
-      await updateDoc(doc(db, "conteos", existente.id), data);
-    } else {
-      await addDoc(collection(db, "conteos"), data);
-    }
+  const payload = filas.map(f => ({
+    fecha, producto_id: f.productoId,
+    entrada: Number(f.entrada) || 0, salida: Number(f.salida) || 0, precio: Number(f.precio) || 0,
+    actualizado: nowISO(),
+  }));
+  if (payload.length) {
+    const { error } = await sb.from("caf_conteos").upsert(payload, { onConflict: "fecha,producto_id" });
+    if (error) return errNotify("No se pudo guardar el inventario.", error);
   }
   notify("Inventario del día guardado.");
 }
 async function guardarCanchasDia(fecha, cantBaja, cantAlta, festivo) {
-  const existente = state.canchas.find(c => c.fecha === fecha);
-  const data = { fecha, cantBaja: Number(cantBaja) || 0, cantAlta: Number(cantAlta) || 0, festivo: !!festivo, actualizado: nowISO() };
-  if (existente) {
-    await updateDoc(doc(db, "canchas", existente.id), data);
-  } else {
-    await addDoc(collection(db, "canchas"), data);
-  }
+  const { error } = await sb.from("caf_canchas").upsert({
+    fecha, cant_baja: Number(cantBaja) || 0, cant_alta: Number(cantAlta) || 0, festivo: !!festivo, actualizado: nowISO(),
+  }, { onConflict: "fecha" });
+  if (error) errNotify("No se pudieron guardar las canchas.", error);
 }
 async function borrarDia(fecha) {
   const registros = state.conteos.filter(c => c.fecha === fecha);
@@ -357,25 +370,32 @@ async function borrarDia(fecha) {
   if (registros.length === 0 && !canchaDoc) return;
   const ok = window.confirm(`¿Eliminar todo el inventario guardado de ${fmtFechaLarga(fecha)}? Esta acción no se puede deshacer.`);
   if (!ok) return;
-  for (const r of registros) {
-    await deleteDoc(doc(db, "conteos", r.id));
-  }
-  if (canchaDoc) await deleteDoc(doc(db, "canchas", canchaDoc.id));
+  const { error: e1 } = await sb.from("caf_conteos").delete().eq("fecha", fecha);
+  const { error: e2 } = await sb.from("caf_canchas").delete().eq("fecha", fecha);
+  if (e1 || e2) return errNotify("No se pudo eliminar el inventario del día.", e1 || e2);
   delete state.invRows[fecha];
   delete state.canchaRows[fecha];
   notify("Inventario del día eliminado.");
 }
 
 /* ---------- suscripciones en tiempo real ---------- */
-function suscribir(nombreColeccion, propiedadEstado) {
-  onSnapshot(collection(db, nombreColeccion), (snap) => {
-    state[propiedadEstado] = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-      .sort((a, b) => new Date(b.creado || b.fecha || 0) - new Date(a.creado || a.fecha || 0));
-    render();
-  }, (err) => {
-    console.error(err);
-    notify("Error de conexión con la base de datos.");
-  });
+let canales = [];
+async function cargarTabla(tabla, propiedadEstado, orderCol, orderAsc) {
+  const { data, error } = await sb.from(tabla).select("*").order(orderCol, { ascending: orderAsc });
+  if (error) return errNotify("Error de conexión con la base de datos.", error);
+  state[propiedadEstado] = data.map(MAPPERS[tabla]);
+  render();
+}
+function suscribir(tabla, propiedadEstado, orderCol, orderAsc) {
+  cargarTabla(tabla, propiedadEstado, orderCol, orderAsc);
+  const canal = sb.channel("rt-" + tabla)
+    .on("postgres_changes", { event: "*", schema: "public", table: tabla }, () => cargarTabla(tabla, propiedadEstado, orderCol, orderAsc))
+    .subscribe();
+  canales.push(canal);
+}
+function cerrarSuscripciones() {
+  canales.forEach(c => sb.removeChannel(c));
+  canales = [];
 }
 
 /* ---------- render principal ---------- */
@@ -857,54 +877,88 @@ function cambiarMes(delta) {
   render();
 }
 
-/* ---------- arranque / autenticación ---------- */
+/* ---------- arranque / autenticación (Supabase Auth + lista caf_acceso) ---------- */
+let appIniciada = false;
 function iniciarApp() {
+  if (appIniciada) return;
+  appIniciada = true;
   document.getElementById("ci-loading").style.display = "none";
+  document.getElementById("ci-gate").style.display = "none";
   document.getElementById("ci-root").classList.add("show");
-  suscribir("productos", "productos");
-  suscribir("distribuidoras", "distribuidoras");
-  suscribir("pedidos", "pedidos");
-  suscribir("conteos", "conteos");
-  suscribir("canchas", "canchas");
+  render();
+  suscribir("caf_productos", "productos", "creado", false);
+  suscribir("caf_distribuidoras", "distribuidoras", "creado", false);
+  suscribir("caf_pedidos", "pedidos", "creado", false);
+  suscribir("caf_conteos", "conteos", "fecha", false);
+  suscribir("caf_canchas", "canchas", "fecha", false);
+}
+function cerrarApp() {
+  appIniciada = false;
+  cerrarSuscripciones();
+  document.getElementById("ci-root").classList.remove("show");
 }
 
+let gateMode = "signin";
+function setGateMode(m) {
+  gateMode = m;
+  document.getElementById("ci-gate-sub").textContent = m === "signin" ? "Inicia sesión para entrar" : "Crea tu cuenta para entrar";
+  document.getElementById("ci-gate-btn").textContent = m === "signin" ? "Entrar" : "Crear cuenta";
+  document.getElementById("ci-gate-toggle").textContent = m === "signin" ? "¿No tienes cuenta? Crea una" : "¿Ya tienes cuenta? Inicia sesión";
+  document.getElementById("ci-gate-input").autocomplete = m === "signin" ? "current-password" : "new-password";
+  document.getElementById("ci-gate-error").textContent = "";
+}
 function mostrarGate() {
   document.getElementById("ci-loading").style.display = "none";
   document.getElementById("ci-gate").style.display = "flex";
-  const input = document.getElementById("ci-gate-input");
-  const btn = document.getElementById("ci-gate-btn");
-  const err = document.getElementById("ci-gate-error");
-  async function intentar() {
-    if (input.value !== CONTRASENA_ACCESO) {
-      err.textContent = "Contraseña incorrecta.";
-      return;
-    }
-    err.textContent = "";
-    btn.disabled = true;
-    btn.textContent = "Entrando…";
-    try {
-      await signInAnonymously(auth);
-      localStorage.setItem("ci_gate_ok", "1");
-      document.getElementById("ci-gate").style.display = "none";
-      iniciarApp();
-    } catch (e) {
-      console.error(e);
-      err.textContent = "Error: " + (e.code || e.message || "desconocido");
-      btn.disabled = false;
-      btn.textContent = "Entrar";
-    }
-  }
-  btn.onclick = intentar;
-  input.onkeydown = (e) => { if (e.key === "Enter") intentar(); };
-  input.focus();
+  document.getElementById("ci-gate-main").style.display = "block";
+  document.getElementById("ci-noaccess").style.display = "none";
+}
+function mostrarSinAcceso(email) {
+  document.getElementById("ci-loading").style.display = "none";
+  document.getElementById("ci-gate").style.display = "flex";
+  document.getElementById("ci-gate-main").style.display = "none";
+  document.getElementById("ci-noaccess").style.display = "block";
+  document.getElementById("ci-noaccess-mail").textContent = email || "";
 }
 
-onAuthStateChanged(auth, (user) => {
-  if (user && localStorage.getItem("ci_gate_ok") === "1") {
-    iniciarApp();
-  } else {
-    mostrarGate();
+document.getElementById("ci-gate-toggle").onclick = () => setGateMode(gateMode === "signin" ? "signup" : "signin");
+document.getElementById("ci-gate-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("ci-gate-email").value.trim();
+  const password = document.getElementById("ci-gate-input").value;
+  const err = document.getElementById("ci-gate-error");
+  const btn = document.getElementById("ci-gate-btn");
+  err.textContent = "";
+  if (!email || !password) { err.textContent = "Completa tu correo y contraseña."; return; }
+  btn.disabled = true;
+  const { data, error } = gateMode === "signin"
+    ? await sb.auth.signInWithPassword({ email, password })
+    : await sb.auth.signUp({ email, password });
+  btn.disabled = false;
+  if (error) { err.textContent = error.message; return; }
+  if (gateMode === "signup" && !data.session) {
+    err.textContent = "Cuenta creada. Revisa tu correo para confirmarla y luego inicia sesión.";
+    setGateMode("signin");
   }
+});
+document.getElementById("ci-noaccess-out").onclick = () => sb.auth.signOut();
+document.getElementById("ci-signout").onclick = () => sb.auth.signOut();
+
+async function tieneAcceso() {
+  const { data, error } = await sb.from("caf_acceso").select("user_id").maybeSingle();
+  if (error) { console.error(error); return false; }
+  return !!data;
+}
+
+sb.auth.onAuthStateChange((_event, session) => {
+  // Supabase puede bloquearse si dentro de este callback se hacen más llamadas
+  // a Supabase de inmediato; por eso se difiere con setTimeout.
+  setTimeout(async () => {
+    if (!session) { cerrarApp(); mostrarGate(); return; }
+    const ok = await tieneAcceso();
+    if (ok) iniciarApp();
+    else { cerrarApp(); mostrarSinAcceso(session.user.email); }
+  }, 0);
 });
 </script>
 </body>
