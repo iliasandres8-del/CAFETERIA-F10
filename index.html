@@ -235,6 +235,7 @@
     <button class="ci-nav-btn" data-tab="distribuidoras">🚚<span> Distribuidoras</span></button>
     <button class="ci-nav-btn" data-tab="inventario">📅<span> Inventario diario</span></button>
     <button class="ci-nav-btn" data-tab="pedidos">📋<span> Pedidos</span></button>
+    <button class="ci-nav-btn" data-tab="acceso">🔑<span> Acceso</span></button>
     <button class="ci-nav-btn" id="ci-theme-toggle" type="button">🌙<span> Modo oscuro</span></button>
     <button class="ci-nav-btn ci-nav-out" id="ci-signout" type="button">⎋<span> Cerrar sesión</span></button>
   </div>
@@ -342,6 +343,9 @@ const state = {
   invRows: {},
   catExpanded: {},
   canchaRows: {},
+  accesos: [],
+  accesosCargados: false,
+  miCorreo: null,
 };
 
 function getProducto(id) { return state.productos.find(p => p.id === id); }
@@ -470,6 +474,31 @@ async function borrarDia(fecha) {
   notify("Inventario del día eliminado.");
 }
 
+/* ---------- gestión de acceso (autoservicio, sin SQL) ---------- */
+async function cargarAccesos() {
+  const { data, error } = await sb.rpc("caf_listar_autorizados");
+  if (error) { errNotify("No se pudo cargar la lista de acceso.", error); state.accesosCargados = true; render(); return; }
+  state.accesos = data || [];
+  state.accesosCargados = true;
+  render();
+}
+async function autorizarCorreo(email, nota) {
+  const e = (email || "").trim();
+  if (!e) return;
+  const { error } = await sb.rpc("caf_autorizar_correo", { p_email: e, p_nota: (nota || "").trim() });
+  if (error) return errNotify("No se pudo autorizar ese correo.", error);
+  notify(`${e} quedó autorizado. Ya puede entrar y pulsar "Primera vez: activar mi acceso".`);
+  cargarAccesos();
+}
+async function quitarAutorizado(email) {
+  const ok = window.confirm(`¿Quitar el acceso de "${email}"? Si ya había activado su cuenta, se le bloquea la entrada de inmediato.`);
+  if (!ok) return;
+  const { error } = await sb.rpc("caf_quitar_autorizado", { p_email: email });
+  if (error) return errNotify("No se pudo quitar el acceso.", error);
+  notify("Acceso retirado.");
+  cargarAccesos();
+}
+
 /* ---------- suscripciones en tiempo real ---------- */
 let canales = [];
 async function cargarTabla(tabla, propiedadEstado, orderCol, orderAsc) {
@@ -499,6 +528,7 @@ function render() {
   else if (state.tab === "distribuidoras") main.innerHTML = viewDistribuidoras();
   else if (state.tab === "inventario") main.innerHTML = viewInventario();
   else if (state.tab === "pedidos") main.innerHTML = viewPedidos();
+  else if (state.tab === "acceso") main.innerHTML = viewAcceso();
   attachHandlers();
 }
 
@@ -853,12 +883,46 @@ function viewPedidos() {
   return html;
 }
 
+/* ---------- vista: acceso ---------- */
+function viewAcceso() {
+  let html = headerHTML("Acceso");
+  html += `<div class="ci-section"><div class="ci-section-head">Autorizar un correo nuevo</div><div class="ci-section-body">
+    <form id="form-acceso" class="ci-form-row">
+      <div class="ci-field"><label>Correo</label><input type="email" name="email" placeholder="persona@correo.com" required style="min-width:220px" /></div>
+      <div class="ci-field"><label>Nombre (opcional)</label><input name="nota" placeholder="Para saber quién es" style="min-width:160px" /></div>
+      <button class="ci-btn" type="submit">+ Autorizar</button>
+    </form>
+    <div class="ci-hint">La persona entra a la página, pulsa "Primera vez: activar mi acceso", pone este correo y elige su propia contraseña. Tú nunca ves su contraseña.</div>
+  </div></div>`;
+
+  html += `<div class="ci-section"><div class="ci-section-head">Personal autorizado (${state.accesos.length})</div><div class="ci-section-body">`;
+  if (!state.accesosCargados) {
+    html += `<div class="ci-empty">Cargando…</div>`;
+  } else if (!state.accesos.length) {
+    html += `<div class="ci-empty">Todavía no has autorizado a nadie más. Tu propia cuenta ya tiene acceso (se dio antes de que existiera esta lista).</div>`;
+  } else {
+    html += `<table class="ci-table"><thead><tr><th>Correo</th><th>Nombre</th><th>Estado</th><th></th></tr></thead><tbody>
+    ${state.accesos.map(a => `<tr>
+      <td>${esc(a.email)}</td><td>${esc(a.nota) || "—"}</td>
+      <td><span class="ci-badge ${a.activo ? "activo" : "pendiente"}">${a.activo ? "Activo" : "Pendiente"}</span></td>
+      <td>${a.email.toLowerCase() === (state.miCorreo || "").toLowerCase() ? `<span class="ci-hint" style="margin:0">(tu cuenta)</span>` : `<button class="ci-btn peligro secondary tiny btn-quitar-acceso" data-email="${esc(a.email)}">Quitar</button>`}</td>
+    </tr>`).join("")}
+    </tbody></table>`;
+  }
+  html += `<div class="ci-hint">"Pendiente" significa que ya está autorizado pero todavía no ha activado su cuenta.</div></div></div>`;
+  return html;
+}
+
 /* ---------- listeners tras cada render ---------- */
 function attachHandlers() {
   // ojo: esto se re-ejecuta en cada render(); [data-tab] evita reengachar los
   // botones fijos del sidebar (tema, cerrar sesión), que tienen su propio onclick fijado una sola vez.
   document.querySelectorAll(".ci-nav-btn[data-tab]").forEach(b => {
-    b.onclick = () => { state.tab = b.dataset.tab; render(); };
+    b.onclick = () => {
+      state.tab = b.dataset.tab;
+      if (state.tab === "acceso" && !state.accesosCargados) cargarAccesos();
+      render();
+    };
   });
 
   document.querySelectorAll(".btn-toggle-cat").forEach(b => b.onclick = () => {
@@ -942,6 +1006,16 @@ function attachHandlers() {
     fpd.reset();
   };
   document.querySelectorAll(".btn-pedido").forEach(b => b.onclick = () => marcarPedido(b.dataset.id, b.dataset.estado));
+
+  // acceso
+  const facc = document.getElementById("form-acceso");
+  if (facc) facc.onsubmit = async (e) => {
+    e.preventDefault();
+    const fd = new FormData(facc);
+    await autorizarCorreo(fd.get("email"), fd.get("nota"));
+    facc.reset();
+  };
+  document.querySelectorAll(".btn-quitar-acceso").forEach(b => b.onclick = () => quitarAutorizado(b.dataset.email));
 }
 
 function generarPDFDia(fecha) {
@@ -1038,6 +1112,9 @@ function iniciarApp() {
 function cerrarApp() {
   appIniciada = false;
   cerrarSuscripciones();
+  state.accesosCargados = false;
+  state.accesos = [];
+  state.miCorreo = null;
   document.getElementById("ci-root").classList.remove("show");
 }
 
@@ -1125,7 +1202,7 @@ sb.auth.onAuthStateChange((_event, session) => {
   setTimeout(async () => {
     if (!session) { cerrarApp(); mostrarGate(); return; }
     const ok = await tieneAcceso();
-    if (ok) iniciarApp();
+    if (ok) { state.miCorreo = session.user.email; iniciarApp(); }
     else { cerrarApp(); mostrarSinAcceso(session.user.email); }
   }, 0);
 });

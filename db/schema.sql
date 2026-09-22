@@ -50,6 +50,64 @@ create trigger caf_alta_automatica_trigger
   after insert on auth.users
   for each row execute function public.caf_alta_automatica();
 
+-- Autoservicio: cualquier persona ya autorizada puede administrar el acceso desde la
+-- pestaña "Acceso" de la app, sin tocar SQL. Cada función comprueba primero que quien
+-- llama ya esté en caf_acceso (si no, "No autorizado"); caf_quitar_autorizado además
+-- no deja que alguien se quite su propio acceso por accidente.
+create or replace function public.caf_listar_autorizados()
+returns table(email text, nota text, creado timestamptz, activo boolean)
+language plpgsql security definer set search_path = public as $$
+begin
+  if not exists (select 1 from public.caf_acceso where user_id = auth.uid()) then
+    raise exception 'No autorizado';
+  end if;
+  return query
+    select ca.email, ca.nota, ca.creado,
+           exists (select 1 from auth.users u join public.caf_acceso a on a.user_id = u.id
+                   where lower(u.email) = lower(ca.email)) as activo
+    from public.caf_correos_autorizados ca order by ca.creado desc;
+end;
+$$;
+
+create or replace function public.caf_autorizar_correo(p_email text, p_nota text default '')
+returns void
+language plpgsql security definer set search_path = public as $$
+declare v_email text := lower(btrim(p_email));
+begin
+  if not exists (select 1 from public.caf_acceso where user_id = auth.uid()) then
+    raise exception 'No autorizado';
+  end if;
+  if v_email is null or v_email = '' or v_email not like '%@%' then
+    raise exception 'Correo inválido';
+  end if;
+  insert into public.caf_correos_autorizados (email, nota) values (v_email, coalesce(btrim(p_nota), ''))
+  on conflict (email) do update set nota = excluded.nota;
+end;
+$$;
+
+create or replace function public.caf_quitar_autorizado(p_email text)
+returns void
+language plpgsql security definer set search_path = public as $$
+declare v_email text := lower(btrim(p_email));
+begin
+  if not exists (select 1 from public.caf_acceso where user_id = auth.uid()) then
+    raise exception 'No autorizado';
+  end if;
+  if exists (select 1 from auth.users where id = auth.uid() and lower(email) = v_email) then
+    raise exception 'No puedes quitar tu propio acceso desde aquí';
+  end if;
+  delete from public.caf_correos_autorizados where lower(email) = v_email;
+  delete from public.caf_acceso where user_id in (select id from auth.users where lower(email) = v_email);
+end;
+$$;
+
+revoke all on function public.caf_listar_autorizados() from public, anon;
+revoke all on function public.caf_autorizar_correo(text, text) from public, anon;
+revoke all on function public.caf_quitar_autorizado(text) from public, anon;
+grant execute on function public.caf_listar_autorizados() to authenticated;
+grant execute on function public.caf_autorizar_correo(text, text) to authenticated;
+grant execute on function public.caf_quitar_autorizado(text) to authenticated;
+
 -- ---------- tablas ----------
 create table if not exists public.caf_productos (
   id                uuid primary key default gen_random_uuid(),
