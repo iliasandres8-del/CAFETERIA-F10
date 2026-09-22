@@ -211,18 +211,18 @@
   <div class="ci-gate-box" id="ci-gate-main">
     <div class="ci-crest lg"><img src="img/escudo.png" alt="Escudo Club Deportivo F-10" /></div>
     <h1>Club <span style="color:var(--brand-red)">F-10</span></h1>
-    <p id="ci-gate-sub">Inicia sesión para entrar</p>
+    <p id="ci-gate-sub">Sistema privado — solo personal autorizado</p>
     <form id="ci-gate-form" novalidate>
       <input id="ci-gate-email" type="email" placeholder="Correo" autocomplete="username" />
       <input id="ci-gate-input" type="password" placeholder="Contraseña" autocomplete="current-password" />
       <button class="ci-btn" id="ci-gate-btn" type="submit">Entrar</button>
     </form>
-    <button class="ci-gate-link" id="ci-gate-toggle" type="button">¿No tienes cuenta? Crea una</button>
+    <button class="ci-gate-link" id="ci-gate-toggle" type="button">Primera vez: activar mi acceso</button>
     <div class="ci-gate-error" id="ci-gate-error" role="alert"></div>
   </div>
   <div class="ci-gate-box" id="ci-noaccess" style="display:none;">
     <h1>Sin acceso</h1>
-    <p>Iniciaste sesión como <strong id="ci-noaccess-mail"></strong>, pero esta cuenta aún no tiene permiso para ver la cafetería. Pide que la habiliten.</p>
+    <p>Iniciaste sesión como <strong id="ci-noaccess-mail"></strong>, pero este correo no está en la lista de personal autorizado del Club F-10. Pide que lo agreguen.</p>
     <button class="ci-btn secondary" id="ci-noaccess-out" type="button">Cerrar sesión</button>
   </div>
 </div>
@@ -1044,9 +1044,9 @@ function cerrarApp() {
 let gateMode = "signin";
 function setGateMode(m) {
   gateMode = m;
-  document.getElementById("ci-gate-sub").textContent = m === "signin" ? "Inicia sesión para entrar" : "Crea tu cuenta para entrar";
-  document.getElementById("ci-gate-btn").textContent = m === "signin" ? "Entrar" : "Crear cuenta";
-  document.getElementById("ci-gate-toggle").textContent = m === "signin" ? "¿No tienes cuenta? Crea una" : "¿Ya tienes cuenta? Inicia sesión";
+  document.getElementById("ci-gate-sub").textContent = m === "signin" ? "Sistema privado — solo personal autorizado" : "Solo funciona si tu correo ya fue autorizado";
+  document.getElementById("ci-gate-btn").textContent = m === "signin" ? "Entrar" : "Activar acceso";
+  document.getElementById("ci-gate-toggle").textContent = m === "signin" ? "Primera vez: activar mi acceso" : "Ya activé mi acceso, iniciar sesión";
   document.getElementById("ci-gate-input").autocomplete = m === "signin" ? "current-password" : "new-password";
   document.getElementById("ci-gate-error").textContent = "";
 }

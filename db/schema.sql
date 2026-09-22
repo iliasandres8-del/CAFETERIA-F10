@@ -3,12 +3,52 @@
 -- Acceso: solo las cuentas listadas en caf_acceso (no basta con estar autenticado).
 
 -- ---------- acceso ----------
--- Para dar acceso a una cuenta (después de que se registre en la app):
+-- Sistema privado: solo entra el personal autorizado del Club F-10, no es un registro público.
+--
+-- Para autorizar a alguien NUEVO (que todavía no tiene cuenta):
+--   insert into public.caf_correos_autorizados (email, nota) values ('correo@ejemplo.com', 'nombre de la persona');
+--   Esa persona entra sola a la app, pulsa "Primera vez: activar mi acceso", pone su correo y
+--   elige su propia contraseña — el disparador caf_alta_automatica_trigger le da acceso solo
+--   porque su correo ya está en la lista. Si Supabase pide confirmar el correo, debe hacerlo
+--   antes de poder entrar.
+--
+-- Para dar acceso a una cuenta que YA EXISTE (se registró antes de estar autorizada):
 --   insert into public.caf_acceso (user_id) select id from auth.users where email = 'correo@ejemplo.com';
 create table if not exists public.caf_acceso (
   user_id uuid primary key references auth.users(id) on delete cascade,
   creado  timestamptz not null default now()
 );
+
+-- Lista de correos autorizados a entrar. Nadie puede leerla ni escribirla desde la app (sin
+-- políticas RLS): solo el dueño del proyecto la edita por SQL.
+create table if not exists public.caf_correos_autorizados (
+  email  text primary key,
+  nota   text not null default '',
+  creado timestamptz not null default now()
+);
+alter table public.caf_correos_autorizados enable row level security;
+
+-- Cuando alguien crea una cuenta con un correo de la lista, se le da acceso automáticamente.
+create or replace function public.caf_alta_automatica()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if exists (select 1 from public.caf_correos_autorizados where lower(email) = lower(new.email)) then
+    insert into public.caf_acceso (user_id) values (new.id) on conflict do nothing;
+  end if;
+  return new;
+end;
+$$;
+revoke all on function public.caf_alta_automatica() from public, anon, authenticated;
+revoke all on public.caf_correos_autorizados from anon, authenticated;
+
+drop trigger if exists caf_alta_automatica_trigger on auth.users;
+create trigger caf_alta_automatica_trigger
+  after insert on auth.users
+  for each row execute function public.caf_alta_automatica();
 
 -- ---------- tablas ----------
 create table if not exists public.caf_productos (
